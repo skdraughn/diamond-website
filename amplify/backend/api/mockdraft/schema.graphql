@@ -1,0 +1,1217 @@
+#OLD DRAFT SHIZA
+type Player
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  name: String
+  position: String
+  previous_team: String
+  projection: Float
+  rank: Int
+  stats: [Stat]
+}
+
+type Stat {
+  all_purpose_yds: Int
+  rush_attempts: Int
+  interceptions: Int
+  kick_return_yds: Int
+  pass_yds: Int
+  rush_yds: Int
+  receiving_yds: Int
+  rush_tds: Int
+  receiving_tds: Int
+  pass_tds: Int
+  total_tds: Int
+  punt_return_yds: Int
+  receptions: Int
+  tackles: Int
+  sacks: Float
+  fg_attempted: Int
+  fg_made: Int
+  PAT_percent: Float
+  avg_punt: Float
+  num_punts: Int
+  long_punt: Float
+  height: String
+  weight: String
+  from: String
+  class: String
+  conference: String
+}
+
+type OfficialPick
+  @model
+  @auth(
+    rules: [
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+      { allow: public, operations: [read] }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  pickNumber: Int!
+  roundNumber: Int
+  playerID: ID!
+  teamID: ID!
+  userID: ID!
+}
+
+type Pick
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  draftID: ID! @index(name: "byDraft")
+  userID: ID! @index(name: "byUser")
+  teamID: ID!
+  number: Int @index(name: "byNumber")
+  Player: Player @hasOne
+  playerID: String
+}
+
+enum ScoringSystem {
+  PLAYERS
+  PLAYERS_POSITIONS
+  PLAYERS_TEAMS
+  PLAYERS_POSITIONS_TEAMS
+}
+
+type DraftOptions {
+  num_rounds: Int #10 for TOP_TEN
+  scoring_system: ScoringSystem
+  team_selection: Boolean
+}
+
+type TempGroupDraft
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: identityPool }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  groupId: ID! @index(name: "byGroupId", sortKeyFields: ["score"])
+  draftId: ID! @index(name: "byDraftId")
+  score: Int
+  userID: String
+  group: Group @belongsTo(fields: ["groupId"])
+  draft: Draft @belongsTo(fields: ["draftId"])
+}
+
+type Draft
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: identityPool }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  name: String
+  options: DraftOptions
+  stage: String
+  score: Int
+  Picks: [Pick] @hasMany(indexName: "byDraft", fields: ["id"])
+  Groups: [Group] @manyToMany(relationName: "GroupDraft")
+  tempGroupDrafts: [TempGroupDraft]
+    @hasMany(indexName: "byDraftId", fields: ["id"])
+}
+
+type Group
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "owner"
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  name: String
+  searchString: String
+  ownerName: String
+  users: [User] @manyToMany(relationName: "UserGroup")
+  isPrivate: Boolean
+  num_users: Int
+  inviteCode: String
+  description: String
+  options: DraftOptions
+  Drafts: [Draft] @manyToMany(relationName: "GroupDraft")
+  hidden: Boolean
+  tempGroupDrafts: [TempGroupDraft]
+    @hasMany(indexName: "byGroupId", fields: ["id"])
+}
+
+#TRIVIA STUFF
+
+type Team
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool }
+      { allow: public, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  abbreviation: String!
+  logoURL: String
+  defaultPickNumbers: [Int]
+  team_needs: [String]
+}
+
+type TriviaPlayer
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read, create, delete, update] }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  teamID: ID!
+  division: String! # e.g., NFC SOUTH, AFC WEST
+  position: String! # e.g., WR, DB, TE
+  height: String! # Format: "6'3\""
+  age: Int!
+  jerseyNumber: Int!
+}
+
+type GriddleGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  numGuesses: Int @index(name: "byNumGuesses", sortKeyFields: ["date"])
+  answerPlayerID: ID!
+  answerPlayer: TriviaPlayer @hasOne(fields: ["answerPlayerID"])
+  adLocked: Boolean
+}
+
+type UserGriddleGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update]
+      }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  guesses: [ID] # List of TriviaPlayer IDs (or names)
+  completed: Boolean
+  correct: Boolean
+  completionTime: Int
+  gridironEarned: Int
+  coinsEarned: Int
+  attempts: Int
+  shownAnswers: Boolean
+}
+
+type RedZoneGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  title: String
+  subtitle: String
+  collectionID: ID
+  teamsHidden: Int
+  prompt: String
+  numStrikes: Int @index(name: "byNumStrikes", sortKeyFields: ["date"])
+  cells: [RedZoneCell]
+  attempts: Int
+  adLocked: Boolean
+}
+
+type RedZoneCell {
+  hint: String
+  team: ID #getting sunset for the teamsHidden Prop on RedZone, now every cell will have a team, the teamHidden prop will just determine whether to display it
+  teamID: ID #real new prop, ALWAYS SET
+  index: Int
+  answerPlayerID: ID
+  correct: Int
+  answerPlayerName: String
+}
+
+type UserRedZoneGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, read, update]
+        identityClaim: "sub"
+        ownerField: "userID"
+      }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  guesses: [ID] # List of TriviaPlayer IDs
+  completed: Boolean
+  strikes: Int
+  score: Int
+  attempts: Int
+  shownAnswers: Boolean
+  completionTime: Int
+  gridironEarned: Int
+  coinsEarned: Int
+}
+
+type GTPGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  prompt: String!
+  attempts: Int
+  correct: Int
+  answerPlayerID: ID!
+  answerPlayer: TriviaPlayer @hasOne(fields: ["answerPlayerID"])
+  hints: [String!]!
+  adLocked: Boolean
+  type: String @index(name: "byType", sortKeyFields: ["date"])
+}
+
+type ConnectionGroup {
+  difficulty: String
+  title: String
+  players: [String]
+  key: String
+}
+type ConnectionsGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  adLocked: Boolean
+  groups: [ConnectionGroup]
+  type: String @index(name: "byType", sortKeyFields: ["date"])
+}
+type GTPGuesses {
+  one: [String]
+  two: [String]
+  three: [String]
+  four: [String]
+  five: [String]
+  six: [String]
+  seven: [String]
+  eight: [String]
+}
+
+type UserGTPGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update]
+      }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  guesses: GTPGuesses
+  completed: Boolean
+  correct: Boolean
+  score: Int
+  shownAnswers: Boolean
+  attempts: Int
+  completionTime: Int
+  gridironEarned: Int
+  coinsEarned: Int
+}
+type UserConnectionsGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        identityClaim: "sub"
+        ownerField: "userID"
+        operations: [create, read, update]
+      }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  strikes: Int
+  solved: [String]
+  shownAnswers: Boolean
+  attempts: Int
+  completionTime: Int
+  gridironEarned: Int
+  coinsEarned: Int
+}
+
+type ReverseImmaculateCell {
+  # 0-8 (row-major)
+  index: Int!
+  # NFL player that will be SHOWN in the grid cell
+  playerName: String!
+  # row / column indexes (0-2) – lets the client map answers quickly
+  rowIndex: Int!
+  colIndex: Int!
+}
+
+type ReverseImmaculateGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  # three team IDs (row headers the user must guess)
+  rowTeams: [ID!]!
+  # three team IDs (column headers the user must guess)
+  colTeams: [ID!]!
+  cells: [ReverseImmaculateCell!]!
+  type: String @index(name: "byType", sortKeyFields: ["date"])
+  prompt: String
+  numStrikes: Int
+  adLocked: Boolean
+}
+
+type UserReverseImmaculateGame
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID", operations: [create, read, update] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  rowGuesses: [[String]] #row team IDs the user has submitted, by index
+  colGuesses: [[String]] #col team IDs the user has submitted, by index
+  matchedRows: [Int!]! # 0-2 any correctly guessed row indexes
+  matchedCols: [Int!]! # 0-2 any correctly guessed col indexes
+  strikes: Int!
+  score: Int!
+  completed: Boolean!
+  gridironEarned: Int
+  coinsEarned: Int
+  attempts: Int
+  shownAnswers: Boolean
+}
+
+type Season
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  startDate: AWSDate!
+  endDate: AWSDate!
+  imageRef: String!
+}
+
+# 1) A new enum for trivia game types
+enum TriviaGameType {
+  GRIDDLE
+  REDZONE
+  GTP
+  REVERSE_IMMACULATE
+  HIGHER_LOWER
+  CONNECTIONS
+}
+
+# 2) League model
+type League
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "ownerID"
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  name: String!
+  ownerID: ID!
+  memberships: [LeagueMembership]
+    @hasMany(indexName: "byLeague", fields: ["id"])
+  iconRef: String
+  inviteCode: String
+  isPublic: Boolean
+  description: String
+  numMembers: Int
+  games: [TriviaGameType!]!
+  LeagueScores: [LeagueScore] @hasMany(indexName: "byLeague", fields: ["id"])
+}
+
+# 3) Link table between User ↔ League
+type LeagueMembership
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "userID"
+        operations: [create, read, delete, update]
+      }
+      { allow: private, provider: userPools, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  leagueID: ID! @index(name: "byLeague", sortKeyFields: ["currentSeasonScore"])
+  userID: ID! @index(name: "byUser")
+  league: League @belongsTo(fields: ["leagueID"])
+  user: User @belongsTo(fields: ["userID"])
+  seasonScores: [SeasonScore]
+  currentSeasonScore: Float!
+}
+
+type SeasonScore {
+  seasonID: ID
+  score: Float
+}
+type LeagueScore
+  @model
+  @auth(
+    rules: [
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  leagueID: ID! @index(name: "byLeague")
+  gameID: ID!
+  date: AWSDate! # which day these points apply to
+  minScore: Float
+  maxScore: Float
+  maxScoreUserName: String
+  minScoreUserName: String
+  gameType: TriviaGameType! # GRIDDLE, REDZONE, etc.
+  score: Float! # how many points the user scored that day
+  totalCompletionTime: Int! #seconds
+  numGames: Int!
+  league: League @belongsTo(fields: ["leagueID"])
+}
+
+type Lobby
+  @model
+  @auth(
+    rules: [
+      { allow: owner }
+      {
+        allow: private
+        provider: userPools
+        operations: [create, read, update]
+      }
+    ]
+  ) {
+  id: ID!
+  gameType: TriviaGameType!
+  players: [PlayerInLobby] @hasMany(indexName: "byLobby", fields: ["id"])
+  status: String! # WAITING, STARTED, ENDED
+  time: Int #in seconds
+  scoringSystem: String
+}
+
+type PlayerInLobby
+  @model
+  @auth(
+    rules: [
+      { allow: owner }
+      { allow: private, provider: userPools, operations: [read, delete] }
+    ]
+  ) {
+  id: ID!
+  userID: ID!
+  username: String!
+  wins: Int
+  lobbyID: ID! @index(name: "byLobby", sortKeyFields: ["createdAt"])
+  isReady: Boolean
+  status: String # IN_LOBBY, LEFT
+  createdAt: AWSDateTime!
+}
+
+enum CompetitiveGameType {
+  PRIVATE
+  PUBLIC
+}
+
+type CompetitiveGame
+  @model
+  @auth(
+    rules: [
+      { allow: owner }
+      { allow: private, provider: userPools, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  lobbyID: ID
+  players: [GamePlayer] @hasMany(indexName: "byCompetitiveGame", fields: ["id"])
+  gameID: ID
+  numRounds: Int
+  gameType: TriviaGameType!
+  status: String! # IN_PROGRESS, COMPLETED
+  matchStartTime: Int
+  competitiveType: CompetitiveGameType
+  gameCandidates: [ID]
+}
+
+type CompetitiveGameVote
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "playerID", identityClaim: "sub" }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  competitiveGameID: ID! @index(name: "byCompetitiveGameID")
+  selectedGameID: ID
+  playerID: ID
+}
+
+type GamePlayer
+  @model
+  @auth(
+    rules: [
+      { allow: owner }
+      { allow: owner, ownerField: "userID", identityClaim: "sub" }
+      { allow: owner, ownerField: "lobbyOwner", identityClaim: "sub" }
+      { allow: private, provider: userPools, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  competitiveGameID: ID!
+    @index(name: "byCompetitiveGame", sortKeyFields: ["userID"])
+  userID: ID! @index(name: "byUserID", sortKeyFields: ["status"])
+  status: String
+  username: String!
+  isFinished: Boolean
+  timeFinished: String
+  eloAdjustment: Int
+  score: Int!
+  strikes: Int!
+  lobbyOwner: ID
+  answers: [Answer]
+  createdAt: AWSDateTime!
+  gridiron: Int
+  elo: Int
+}
+
+type GameQueue
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID", identityClaim: "sub" }
+      { allow: private, provider: identityPool }
+      { allow: private, provider: userPools, operations: [read] }
+    ]
+  ) {
+  id: ID!
+  gameType: String!
+  userID: ID!
+  rematchUserID: ID @index(name: "byRematchUserID")
+  expiresAt: Int
+  elo: Int
+  gridiron: Int
+  username: String
+  type: String @index(name: "byType", sortKeyFields: ["queuedAt"])
+  queuedAt: AWSDateTime!
+}
+
+type Comment
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID" }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  body: String
+  userID: ID
+  hidden: Boolean
+  feedbackID: ID! @index(name: "byFeedback")
+}
+
+type Feedback
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID" }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+      { allow: private, provider: identityPool }
+    ]
+  ) {
+  id: ID!
+  title: String
+  body: String
+  userID: ID
+  approved: Boolean
+  devMessage: String
+  tag: String
+  tagColor: String
+  numUpvotes: Int
+  numComments: Int
+  type: String! @index(name: "byType", sortKeyFields: ["numUpvotes"])
+}
+
+enum VoteDirection {
+  UP
+  DOWN
+}
+
+type Vote
+  @model
+  @auth(
+    rules: [{ allow: owner }, { allow: groups, groups: ["admin_full_access"] }]
+  ) {
+  id: ID!
+  direction: VoteDirection
+  feedbackID: ID!
+}
+
+type Answer {
+  id: ID!
+  competitiveGameID: ID!
+  playerID: ID!
+  index: Int
+  guess: String
+  isCorrect: Boolean
+}
+
+#SEASONAL
+type GuessTheNFLSeasonGame
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  answerSeason: String!
+  hints: AWSJSON
+  type: String @index(name: "byType", sortKeyFields: ["startDate"])
+  startDate: AWSDate @index(name: "byStartDate")
+  adLocked: Boolean
+}
+
+type UserGuessTheNFLSeasonGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, read, update]
+        identityClaim: "sub"
+        ownerField: "userID"
+      }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  guesses: [String]
+  score: Int
+  strikes: Int
+  gridironEarned: Int
+  coinsEarned: Int
+  attempts: Int
+  shownAnswers: Boolean
+}
+
+type HigherLowerGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, read, update, delete]
+        identityClaim: "sub"
+        ownerField: "userID"
+      }
+      { allow: private, provider: identityPool }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: public, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  userID: ID!
+  type: String @index(name: "byType", sortKeyFields: ["score"])
+  score: Int!
+}
+
+#GENERAL
+
+type AppConfig @model @auth(rules: [{ allow: public, operations: [read] }]) {
+  id: ID!
+  key: String! @index(name: "byKey")
+  value: AWSJSON
+}
+
+type User
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [read, update, delete]
+        identityClaim: "sub"
+        ownerField: "id"
+      }
+      { allow: private, provider: identityPool }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: public, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  identifier: String @index(name: "byIdentifier")
+  username: String @index(name: "byUsername")
+  pushToken: String
+  coins: Int
+    @auth(
+      rules: [
+        {
+          allow: owner
+          operations: [read]
+          identityClaim: "sub"
+          ownerField: "id"
+        }
+        { allow: private, provider: identityPool }
+        { allow: private, provider: userPools, operations: [read] }
+        { allow: public, operations: [read] }
+        { allow: groups, groups: ["admin_full_access"] }
+      ]
+    )
+  Groups: [Group] @manyToMany(relationName: "UserGroup")
+  Drafts: [Draft] @hasMany(indexName: "byUser", fields: ["id"])
+  Picks: [Pick] @hasMany(indexName: "byUser", fields: ["id"])
+  griddleGamesPlayed: Int
+  griddleGamesWon: Int
+  currentGriddleStreak: Int
+  maxGriddleStreak: Int
+  bannedUntil: AWSDate
+  griddleAttemptDistribution: [Int]
+  redZoneGamesPlayed: Int
+  redZoneGamesWon: Int
+  redZoneGamesCorrectCells: Int
+  redZoneGamesTotalCells: Int
+  currentRedZoneStreak: Int
+  maxRedZoneStreak: Int
+  gtpGamesPlayed: Int
+  gtpGamesWon: Int
+  gtpTotalScore: Int
+  gtpAttemptDistribution: [Int]
+  reverseImmaculateGamesPlayed: Int
+  reverseImmaculateGamesWon: Int
+  reverseImmaculateGamesCorrectHeaders: Int
+  reverseImmaculateGamesTotalHeaders: Int
+  currentReverseImmaculateStreak: Int
+  maxReverseImmaculateStreak: Int
+  competitiveGamesPlayed: Int
+  competitiveGamesWon: Int
+  guessTheNFLSeasonsPlayed: Int
+  guessTheNFLSeasonsWon: Int
+  guessTheNFLSeasonsScore: Int
+  connectionsGamesPlayed: Int
+  connectionsGamesWon: Int
+  maxConnectionsStreak: Int
+  currentConnectionsStreak: Int
+  gridiron: Int
+  inAdGroup: Boolean
+  higherLowerGamesPlayed: Int
+  energy: Float
+  energyLastConsumedAt: AWSDateTime
+  higherLowerMaxScore: Int
+  subscriptionPlan: String
+  subscriptionExpiration: AWSDateTime
+  lastReadNotification: AWSDateTime
+  elo: Int
+  onlineGamesPlayed: Int
+  onlineGamesWon: Int
+  onlineGamesDrawn: Int
+  outgoingFriendRequests: [FriendRequest]
+    @hasMany(indexName: "bySender", fields: ["id"])
+  incomingFriendRequests: [FriendRequest]
+    @hasMany(indexName: "byReceiver", fields: ["id"])
+  friendships: [Friendship] @hasMany(indexName: "byUser", fields: ["id"])
+  type: String @index(name: "byType", sortKeyFields: ["gridiron"])
+  memberships: [LeagueMembership] @hasMany(indexName: "byUser", fields: ["id"])
+  UserRedZoneGames: [UserRedZoneGame]
+    @hasMany(indexName: "byUser", fields: ["id"])
+  UserGriddleGames: [UserGriddleGame]
+    @hasMany(indexName: "byUser", fields: ["id"])
+  UserGTPGames: [UserGTPGame] @hasMany(indexName: "byUser", fields: ["id"])
+}
+
+type Friendship
+  @model
+  @auth(
+    rules: [
+      # Either user can read / delete the row
+      { allow: owner, ownerField: "userID", operations: [read, delete] }
+      { allow: owner, ownerField: "friendID", operations: [read, delete] }
+      # Admins (optional)
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser", sortKeyFields: ["createdAt"])
+  friendID: ID! @index(name: "byFriend", sortKeyFields: ["createdAt"])
+  createdAt: AWSDateTime!
+  user: User @belongsTo(fields: ["userID"])
+  friend: User @belongsTo(fields: ["friendID"])
+}
+
+type AdConfig @model @auth(rules: [{ allow: public, operations: [read] }]) {
+  id: ID!
+  adsEnabled: Boolean
+  griddleBanner: Boolean
+  redZoneBanner: Boolean
+  higherLowerMaxGames: Int
+  askToTrack: Boolean
+  redZoneInterstitial: Boolean
+  griddleInterstitial: Boolean
+  websiteGriddleBanner: Boolean
+  websiteRedZoneBanner: Boolean
+  guesstheplayerBanner: Boolean
+  guesstheplayerInterstitial: Boolean
+  redZoneInterstitialInterval: Int
+  griddleInterstitialInterval: Int
+  guesstheplayerInterstitialInterval: Int
+  reverseImmaculateBanner: Boolean
+  reverseImmaculateInterstitial: Boolean
+  reverseImmaculateInterstitialInterval: Int
+  competitiveGameBanner: Boolean
+  competitiveGameInterstitial: Boolean
+  competitiveGameInterstitialInterval: Int
+  guessTheNFLSeasonBanner: Boolean
+  guessTheNFLSeasonInterstitial: Boolean
+  guessTheNFLSeasonInterstitialInterval: Int
+  leaderboardBanner: Boolean
+  profileBanner: Boolean
+  weightedInterval: Int
+  gtpWeight: Int
+  reverseImmaculateWeight: Int
+  redzoneWeight: Int
+  gtsWeight: Int
+  competitiveWeight: Int
+  griddleWeight: Int
+  playerCacheKey: String
+  triviaPlayerCacheKey: String
+  disclaimerModalActive: Boolean
+  disclaimerModalTitle: String
+  disclaimerModalMessage: String
+  basicPlayersFileName: String
+  verbosePlayersFileName: String
+  higherLowerFileName: String
+  higherLowerInterstitial: Boolean
+  higherLowerInterstitialInterval: Int
+  dailyGameRetries: Int
+  unlockAdEnabled: Boolean
+}
+
+type Notification
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID" }
+      { allow: private, operations: [create] }
+      { allow: private, provider: iam }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  title: String
+  body: String
+  type: String
+  route: String
+  userID: ID! @index(name: "byUser", sortKeyFields: ["createdAt"])
+  createdAt: AWSDateTime!
+}
+
+type Updates @model @auth(rules: [{ allow: public, operations: [read] }]) {
+  id: ID!
+  version: String
+  isSupported: Boolean
+}
+
+#Collections
+enum CollectionType {
+  GRIDDLE
+  REDZONE
+  CONNECTIONS
+  GTP
+  REVERSE_IMMACULATE
+  GTS
+}
+
+type CollectionItem {
+  gameID: ID!
+  collectionID: ID!
+  collectionItemIndex: Int!
+  gameTitle: String
+  maxGridiron: Int! #on NORMAL
+  gridironMultiplier: Float #for HARD mode, if applicable
+}
+
+type Collection
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  title: String
+  imageURL: String
+  imagePath: String
+  type: CollectionType!
+  adUnlock: Boolean
+  isComplete: Boolean
+  unlockCost: Int
+  productID: String
+  numGames: Int
+  items: [CollectionItem]
+}
+
+type DailyMessage
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  title: String!
+  body: String!
+  date: AWSDate @index(name: "byDate")
+}
+
+type GameData {
+  collectionItemIndex: Int!
+  gridironEarned: Int!
+  mode: String #EASY, NORMAL, HARD
+  attempts: Int #idk if we want this, jus in case
+  shownAnswers: Boolean
+}
+
+type UserCollection
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        ownerField: "userID"
+        identityClaim: "sub"
+        operations: [create, read, update]
+      }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  unlocked: Boolean!
+  unlockedAt: AWSDateTime
+  method: String #method of unlock
+  gameData: [GameData]
+  completed: Boolean! # convenience flag
+  userID: ID! @index(name: "byUser")
+  collectionID: ID!
+}
+
+#FRIENDS
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED # becomes a Friendship row
+  DECLINED
+  BLOCKED # optional – handled in your UI
+}
+
+"""
+Exactly *one* row per friend request.
+`senderID` and `receiverID` are both owner-protected, so only the two
+people involved (plus admins) can see or touch the record.
+"""
+type FriendRequest
+  @model
+  @auth(
+    rules: [
+      # request initiator
+      {
+        allow: owner
+        ownerField: "senderID"
+        identityClaim: "sub"
+        operations: [create, read, update, delete]
+      }
+      # request recipient
+      {
+        allow: owner
+        ownerField: "receiverID"
+        identityClaim: "sub"
+        operations: [read, update]
+      }
+      # admins – optional
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  senderID: ID! @index(name: "bySender", sortKeyFields: ["status", "createdAt"])
+  receiverID: ID!
+    @index(name: "byReceiver", sortKeyFields: ["status", "createdAt"])
+  status: FriendRequestStatus! @default(value: "PENDING")
+  createdAt: AWSDateTime!
+  respondedAt: AWSDateTime
+  sender: User @belongsTo(fields: ["senderID"])
+  receiver: User @belongsTo(fields: ["receiverID"])
+}

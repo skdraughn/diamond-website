@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.cliqinvite.diamondtrivia",
+      "sha256_cert_fingerprints": [
+        "DA:3D:B8:78:84:CC:C4:2C:0F:98:E4:07:4A:39:0C:90:7E:24:96:89:71:7A:E3:66:41:F9:F2:EA:B0:72:A4:0B"
+      ]
+    }
+  }
+]

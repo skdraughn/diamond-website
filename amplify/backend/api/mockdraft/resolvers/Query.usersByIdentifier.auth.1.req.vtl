@@ -1,0 +1,45 @@
+## [Start] Authorization Steps. **
+$util.qr($ctx.stash.put("hasAuth", true))
+#set( $isAuthorized = false )
+#set( $primaryFieldMap = {} )
+#if( $util.authType() == "API Key Authorization" )
+
+#end
+#if( $util.authType() == "IAM Authorization" )
+  ## Initialize adminRoles if not already set
+  #set( $adminRoles = $ctx.stash.adminRoles )
+  #if( !$adminRoles )
+    #set( $adminRoles = [] )
+  #end
+  $util.qr($adminRoles.add("mockdraft_createUser-role-6zrnpdq8"))
+
+  #foreach( $adminRole in $adminRoles )
+    #if( $ctx.identity.userArn.contains($adminRole) && $ctx.identity.userArn != $ctx.stash.authRole && $ctx.identity.userArn != $ctx.stash.unauthRole )
+      #return($util.toJson({}))
+    #end
+  #end
+
+  #if( ($ctx.identity.userArn == $ctx.stash.authRole) || 
+       ($ctx.identity.cognitoIdentityPoolId == $ctx.stash.identityPoolId && 
+        $ctx.identity.cognitoIdentityAuthType == "authenticated") )
+    #set( $isAuthorized = true )
+  #end
+#end
+#if( $util.authType() == "User Pool Authorization" )
+  #set( $isAuthorized = true )
+  #if( !$isAuthorized )
+    #set( $authFilter = [] )
+    #set( $role0 = $util.defaultIfNull($ctx.identity.claims.get("sub"), null) )
+    #if( !$util.isNull($role0) )
+      $util.qr($authFilter.add({"id": { "eq": $role0 }}))
+    #end
+    #if( !$authFilter.isEmpty() )
+      $util.qr($ctx.stash.put("authFilter", { "or": $authFilter }))
+    #end
+  #end
+#end
+#if( !$isAuthorized && $util.isNull($ctx.stash.authFilter) )
+$util.unauthorized()
+#end
+$util.toJson({"version":"2018-05-29","payload":{}})
+## [End] Authorization Steps. **

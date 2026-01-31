@@ -1,0 +1,30 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appIDs": [
+          "SKZ869TDQR.com.cliqinvite.diamondtrivia"
+        ],
+        "components": [
+          {
+            "#": "no_universal_links",
+            "exclude": true
+          },
+          {
+            "/": "/(league)/*"
+          },
+          {
+            "/": "/(competitive)/*"
+          },
+          {
+            "/": "/(profile)/*"
+          },
+          {
+            "/": "/(refer)/*"
+          }
+        ]
+      }
+    ]
+  }
+}

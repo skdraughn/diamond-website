@@ -537,7 +537,7 @@ export default function RedZoneGame() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-zinc-50 dark:bg-black text-zinc-500">
         <p>
-          {error ? "Error loading game." : "No RedZone game available today."}
+          {error ? "Error loading game." : "No Strikeout game available today."}
         </p>
       </div>
     );

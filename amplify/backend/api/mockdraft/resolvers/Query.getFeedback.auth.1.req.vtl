@@ -11,7 +11,7 @@ $util.qr($ctx.stash.put("hasAuth", true))
   #if( !$adminRoles )
     #set( $adminRoles = [] )
   #end
-  $util.qr($adminRoles.add("mockdraft-voteStreamListener-role-du3jpxku"))
+  $util.qr($adminRoles.add("mockdraft-voteStreamListener-role-ej1q9rlu"))
 
   #foreach( $adminRole in $adminRoles )
     #if( $ctx.identity.userArn.contains($adminRole) && $ctx.identity.userArn != $ctx.stash.authRole && $ctx.identity.userArn != $ctx.stash.unauthRole )

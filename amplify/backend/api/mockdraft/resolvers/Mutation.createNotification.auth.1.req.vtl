@@ -11,7 +11,7 @@ $util.unauthorized()
   #if( !$adminRoles )
     #set( $adminRoles = [] )
   #end
-  $util.qr($adminRoles.add("mockdraft-completeReferral-role-6lsq3p7r"))
+  $util.qr($adminRoles.add("mockdraft-completeReferral-role-xmimu9gl"))
 
   #foreach( $adminRole in $adminRoles )
     #if( $ctx.identity.userArn.contains($adminRole) && $ctx.identity.userArn != $ctx.stash.authRole && $ctx.identity.userArn != $ctx.stash.unauthRole )

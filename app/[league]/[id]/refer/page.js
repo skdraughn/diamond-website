@@ -7,7 +7,7 @@ export const metadata = {
   title: "Play Competitive | Diamond Trivia",
   description: "Play daily MLB trivia on Diamond Trivia",
   openGraph: {
-    title: "Play me in daily on Diamond Trivia",
+    title: "Play daily MLB trivia on Diamond Trivia",
     description: "Play daily MLB trivia with me on Diamond Trivia",
     url: "https://www.diamondtrivia.com/refer",
     siteName: "Diamond Trivia",

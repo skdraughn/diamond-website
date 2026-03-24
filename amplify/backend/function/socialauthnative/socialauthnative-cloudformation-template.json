@@ -1,0 +1,273 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"14.2.5\",\"stackType\":\"function-Lambda\",\"metadata\":{\"whyContinueWithGen1\":\"\"}}",
+  "Parameters": {
+    "CloudWatchRule": {
+      "Type": "String",
+      "Default": "NONE",
+      "Description": " Schedule Expression"
+    },
+    "deploymentBucketName": {
+      "Type": "String"
+    },
+    "env": {
+      "Type": "String"
+    },
+    "s3Key": {
+      "Type": "String"
+    },
+    "googleClientIds": {
+      "Type": "String",
+      "Default": "223129001469-7ubvonadfqjc1ff6k4mjhmoafjsmk6rp.apps.googleusercontent.com,223129001469-jni3q2lsd78idd2gn7bmcdpp5183rpu2.apps.googleusercontent.com"
+    },
+    "appleClientIds": {
+      "Type": "String",
+      "Default": "com.cliqinvite.diamondtriviaapp,com.cliqinvite.diamondtriviaapp.service"
+    },
+    "cognitoUserPoolId": {
+      "Type": "String",
+      "Default": "us-east-1_IdeFz38xy"
+    },
+    "socialAuthPasswordPepper": {
+      "Type": "String",
+      "Default": "a4fd4b5a6a2a69f6e8d81ff2f768c9ac57e92f03a7eb09f9a2dbb3c8d0065a16"
+    },
+    "appJwtSecret": {
+      "Type": "String",
+      "Default": "c317603a8b7d5d0f8f0a0396b72a46d6f6bf0fc0fb14856d3749e1491fdbfd03"
+    },
+    "appJwtTtlSeconds": {
+      "Type": "String",
+      "Default": "3600"
+    }
+  },
+  "Conditions": {
+    "ShouldNotCreateEnvResources": {
+      "Fn::Equals": [
+        {
+          "Ref": "env"
+        },
+        "NONE"
+      ]
+    }
+  },
+  "Resources": {
+    "LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Metadata": {
+        "aws:asset:path": "./src",
+        "aws:asset:property": "Code"
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "deploymentBucketName"
+          },
+          "S3Key": {
+            "Ref": "s3Key"
+          }
+        },
+        "Handler": "index.handler",
+        "FunctionName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "socialauthnative",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "socialauthnative",
+                  "-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "ENV": {
+              "Ref": "env"
+            },
+            "REGION": {
+              "Ref": "AWS::Region"
+            },
+            "GOOGLE_CLIENT_IDS": {
+              "Ref": "googleClientIds"
+            },
+            "APPLE_CLIENT_IDS": {
+              "Ref": "appleClientIds"
+            },
+            "COGNITO_USER_POOL_ID": {
+              "Ref": "cognitoUserPoolId"
+            },
+            "SOCIAL_AUTH_PASSWORD_PEPPER": {
+              "Ref": "socialAuthPasswordPepper"
+            },
+            "APP_JWT_SECRET": {
+              "Ref": "appJwtSecret"
+            },
+            "APP_JWT_TTL_SECONDS": {
+              "Ref": "appJwtTtlSeconds"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecutionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs22.x",
+        "Layers": [],
+        "Timeout": 25
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "mockdraftLambdaRole3a9b0874",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "mockdraftLambdaRole3a9b0874",
+                  "-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "lambdaexecutionpolicy": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "lambda-execution-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": {
+                "Fn::Sub": [
+                  "arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*",
+                  {
+                    "region": {
+                      "Ref": "AWS::Region"
+                    },
+                    "account": {
+                      "Ref": "AWS::AccountId"
+                    },
+                    "lambda": {
+                      "Ref": "LambdaFunction"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CustomLambdaExecutionPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "custom-lambda-execution-policy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "cognito-idp:AdminGetUser",
+                "cognito-idp:AdminCreateUser",
+                "cognito-idp:AdminSetUserPassword",
+                "cognito-idp:AdminUpdateUserAttributes"
+              ],
+              "Resource": [
+                "*"
+              ],
+              "Effect": "Allow"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ]
+      },
+      "DependsOn": "LambdaExecutionRole"
+    }
+  },
+  "Outputs": {
+    "Name": {
+      "Value": {
+        "Ref": "LambdaFunction"
+      }
+    },
+    "Arn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaFunction",
+          "Arn"
+        ]
+      }
+    },
+    "Region": {
+      "Value": {
+        "Ref": "AWS::Region"
+      }
+    },
+    "LambdaExecutionRole": {
+      "Value": {
+        "Ref": "LambdaExecutionRole"
+      }
+    },
+    "LambdaExecutionRoleArn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaExecutionRole",
+          "Arn"
+        ]
+      }
+    }
+  }
+}

@@ -1,4 +1,4 @@
 export const appLinks = {
-  appStore: "https://apps.apple.com/us/app/diamond-daily-baseball-trivia/id6758550019",
+  appStore: "https://apps.apple.com/us/app/diamond-trivia/id6761062612",
   googlePlay: "",
 };

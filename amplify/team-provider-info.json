@@ -14,6 +14,16 @@
     "categories": {
       "auth": {
         "mockdraft": {}
+      },
+      "function": {
+        "socialauthnative": {
+          "appJwtSecret": "0f7f962f316aad2e0726dfbce901de22e1771416a4d630ff26ad592ae627da724ab7835f3e694948e81a34564a14745a68336722f159facf713e143259a53100",
+          "appJwtTtlSeconds": "3600",
+          "appleClientIds": "com.cliqinvite.diamondtriviaapp,com.cliqinvite.diamondtriviaapp.service",
+          "googleClientIds": "223129001469-7ubvonadfqjc1ff6k4mjhmoafjsmk6rp.apps.googleusercontent.com,223129001469-jni3q2lsd78idd2gn7bmcdpp5183rpu2.apps.googleusercontent.com",
+          "deploymentBucketName": "amplify-mockdraft-prod-8022f-deployment",
+          "s3Key": "amplify-builds/socialauthnative-66487666634d73586651-build.zip"
+        }
       }
     }
   }

@@ -1,0 +1,11 @@
+{
+  "name": "socialauthnative",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.884.0",
+    "jose": "^5.10.0"
+  }
+}

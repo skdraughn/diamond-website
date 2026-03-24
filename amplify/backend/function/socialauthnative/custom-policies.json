@@ -1,0 +1,13 @@
+[
+  {
+    "Action": [
+      "cognito-idp:AdminGetUser",
+      "cognito-idp:AdminCreateUser",
+      "cognito-idp:AdminSetUserPassword",
+      "cognito-idp:AdminUpdateUserAttributes"
+    ],
+    "Resource": [
+      "*"
+    ]
+  }
+]

@@ -854,6 +854,23 @@ type UserGuessTheNFLSeasonGame
   shownAnswers: Boolean
 }
 
+type AppRatingEvent
+  @model
+  @auth(
+    rules: [
+      { allow: owner, ownerField: "userID", operations: [create, read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  stars: Int!
+  feedbackText: String
+  source: String
+  platform: String
+  appVersion: String
+}
+
 type HigherLowerGame
   @model
   @auth(

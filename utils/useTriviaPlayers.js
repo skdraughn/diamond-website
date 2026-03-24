@@ -1,17 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { generateClient } from "aws-amplify/api";
-
-// GraphQL Query
-const GET_AD_CONFIG = /* GraphQL */ `
-  query GetAdConfig($id: ID!) {
-    getAdConfig(id: $id) {
-      id
-      basicPlayersFileName
-    }
-  }
-`;
+import { useEffect, useState, useCallback } from "react";
+import { useFlag, useFlagsReady } from "react-featureflags-client";
 
 const BASE_URL =
   "https://diamondtrivia-public-bucket.s3.us-east-1.amazonaws.com/data";
@@ -34,40 +24,17 @@ export default function useTriviaPlayers() {
 
   // Loading states
   const [loading, setLoading] = useState(true);
-  const [configLoading, setConfigLoading] = useState(true);
 
   const [lastFetched, setLastFetched] = useState(null);
-  const [config, setConfig] = useState(null);
 
-  // Initialize client once
-  const client = useMemo(() => generateClient(), []);
-
-  // 1. Fetch Ad Config (Replaces useAdConfig)
-  useEffect(() => {
-    const fetchConfig = async () => {
-      try {
-        const response = await client.graphql({
-          query: GET_AD_CONFIG,
-          variables: { id: "ed5c931b-5ecb-4149-8066-c4f9faccf487" },
-        });
-
-        const fetchedConfig = response?.data?.getAdConfig;
-        setConfig(fetchedConfig);
-      } catch (err) {
-        console.error("Failed to fetch AdConfig:", err);
-      } finally {
-        setConfigLoading(false);
-      }
-    };
-
-    fetchConfig();
-  }, [client]);
+  const playerFileNameFlag = useFlag("playerfilename", BASIC_FALLBACK_KEY);
+  const flagsReady = useFlagsReady();
 
   // 2. Fetch from S3
   const fetchJsonFromPublic = useCallback(async (fileName) => {
     if (!fileName) throw new Error("No fileName provided");
 
-    console.log(`${BASE_URL}/${fileName}`)
+    console.log(`${BASE_URL}/${fileName}`);
 
     const resp = await fetch(`${BASE_URL}/${fileName}`);
     if (!resp.ok)
@@ -148,12 +115,11 @@ export default function useTriviaPlayers() {
     [fetchJsonFromPublic],
   );
 
-  // 5. Main Effect: Triggered when Config is ready
+  // 5. Main Effect: Triggered when flags are ready
   useEffect(() => {
-    // Wait for config to finish loading (even if it failed and is null)
-    if (configLoading) return;
+    if (!flagsReady) return;
 
-    const fileName = config?.basicPlayersFileName || BASIC_FALLBACK_KEY;
+    const fileName = playerFileNameFlag || BASIC_FALLBACK_KEY;
 
     const init = async () => {
       const loadedFromCache = loadFromCache(fileName);
@@ -166,19 +132,19 @@ export default function useTriviaPlayers() {
     };
 
     init();
-  }, [configLoading, config, loadFromCache, fetchAndCache]);
+  }, [flagsReady, playerFileNameFlag, loadFromCache, fetchAndCache]);
 
   const refresh = useCallback(() => {
-    if (configLoading) return;
-    const fileName = config?.basicPlayersFileName || BASIC_FALLBACK_KEY;
+    if (!flagsReady) return;
+    const fileName = playerFileNameFlag || BASIC_FALLBACK_KEY;
     fetchAndCache(fileName);
-  }, [configLoading, config, fetchAndCache]);
+  }, [flagsReady, playerFileNameFlag, fetchAndCache]);
 
   return {
     basicPlayers,
     verbosePlayers,
     higherLowerPlayers,
-    loading: loading || configLoading, // Combine loading states
+    loading: loading || !flagsReady,
     refresh,
     lastFetched,
   };

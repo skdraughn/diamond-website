@@ -40,6 +40,20 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "AppSync"
+    },
+    "socialauthapi": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "Name",
+            "Arn"
+          ],
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "API Gateway"
     }
   },
   "auth": {
@@ -64,6 +78,63 @@
       },
       "providerPlugin": "awscloudformation",
       "service": "Cognito"
+    }
+  },
+  "function": {
+    "socialauthnative": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda"
+    }
+  },
+  "parameters": {
+    "AMPLIFY_function_socialauthnative_appJwtSecret": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
+    },
+    "AMPLIFY_function_socialauthnative_appJwtTtlSeconds": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
+    },
+    "AMPLIFY_function_socialauthnative_appleClientIds": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
+    },
+    "AMPLIFY_function_socialauthnative_deploymentBucketName": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
+    },
+    "AMPLIFY_function_socialauthnative_googleClientIds": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
+    },
+    "AMPLIFY_function_socialauthnative_s3Key": {
+      "usedBy": [
+        {
+          "category": "function",
+          "resourceName": "socialauthnative"
+        }
+      ]
     }
   }
 }

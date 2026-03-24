@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/social-auth": {
+      "name": "/social-auth",
+      "lambdaFunction": "socialauthnative",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { appLinks } from "@/utils/appLinks";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 // Simple SVG Icons to keep the design lightweight and dependency-free
 function DiamondIcon({ className }: { className?: string }) {
@@ -63,6 +64,30 @@ function CalendarIcon({ className }: { className?: string }) {
   );
 }
 
+function DownloadButton() {
+  const [downloadLink, setDownloadLink] = useState(appLinks.appStore);
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('android')) {
+      setDownloadLink(appLinks.googlePlay);
+    } else {
+      setDownloadLink(appLinks.appStore);
+    }
+  }, []);
+
+  return (
+    <Link
+      href={downloadLink}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative inline-flex h-12 min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-red-600 px-8 font-medium text-white transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25"
+    >
+      <span className="mr-2">Get Diamond Trivia</span>
+    </Link>
+  );
+}
+
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-50 font-sans selection:bg-red-500 selection:text-white">
@@ -91,14 +116,7 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <Link
-              href={appLinks.appStore}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group relative inline-flex h-12 min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-red-600 px-8 font-medium text-white transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25"
-            >
-              <span className="mr-2">Get Diamond Trivia</span>
-            </Link>
+            <DownloadButton />
 
             <Link
               href="/strikeout"

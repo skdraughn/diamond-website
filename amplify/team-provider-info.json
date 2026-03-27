@@ -22,7 +22,7 @@
           "appleClientIds": "com.cliqinvite.diamondtriviaapp,com.cliqinvite.diamondtriviaapp.service",
           "googleClientIds": "223129001469-7ubvonadfqjc1ff6k4mjhmoafjsmk6rp.apps.googleusercontent.com,223129001469-jni3q2lsd78idd2gn7bmcdpp5183rpu2.apps.googleusercontent.com",
           "deploymentBucketName": "amplify-mockdraft-prod-8022f-deployment",
-          "s3Key": "amplify-builds/socialauthnative-66487666634d73586651-build.zip"
+          "s3Key": "amplify-builds/socialauthnative-58707634645366357378-build.zip"
         }
       }
     }

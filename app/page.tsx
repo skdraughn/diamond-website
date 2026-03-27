@@ -1,3 +1,5 @@
+"use client";
+
 import { appLinks } from "@/utils/appLinks";
 import Link from "next/link";
 import { useEffect, useState } from "react";

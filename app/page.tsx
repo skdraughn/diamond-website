@@ -1,174 +1,200 @@
 "use client";
 
-import { appLinks } from "@/utils/appLinks";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
+import Footer from "./components/Footer";
+import GameModule from "./components/GameModule";
+import { colors } from "./theme/colors";
+import { getPreferredStoreLink } from "./utils/appStore";
 
-// Simple SVG Icons to keep the design lightweight and dependency-free
-function DiamondIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.4l8.3 8.3a2.41 2.41 0 0 0 3.4 0l8.3-8.3a2.41 2.41 0 0 0 0-3.4L14.4 2a2.41 2.41 0 0 0-3.4 0L2.7 10.3z" />
-      <path d="M2.7 10.3 12 21.3" />
-      <path d="M12 2.6 21.3 11.9" />
-    </svg>
-  );
+const hlMaxScoreKey = "diamond_hl_max_score";
+
+function safeJSONParse(value: string | null, fallback = {}) {
+  if (!value) return fallback;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return fallback;
+  }
 }
 
-function TrophyIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" />
-      <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" />
-      <path d="M4 22h16" />
-      <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" />
-      <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" />
-      <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
-    </svg>
-  );
+function getDayMoment() {
+  const currentHour = new Date().getHours();
+  if (currentHour >= 17) return "evening";
+  if (currentHour >= 12) return "afternoon";
+  if (currentHour >= 4) return "morning";
+  return "night";
 }
 
-function CalendarIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M8 2v4" />
-      <path d="M16 2v4" />
-      <rect width="18" height="18" x="3" y="4" rx="2" />
-      <path d="M3 10h18" />
-    </svg>
-  );
-}
-
-function DownloadButton() {
-  const [downloadLink, setDownloadLink] = useState(appLinks.appStore);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent.toLowerCase();
-    if (userAgent.includes('android')) {
-      setDownloadLink(appLinks.googlePlay);
-    } else {
-      setDownloadLink(appLinks.appStore);
-    }
-  }, []);
-
-  return (
-    <Link
-      href={downloadLink}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative inline-flex h-12 min-w-[160px] items-center justify-center overflow-hidden rounded-full bg-red-600 px-8 font-medium text-white transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg hover:shadow-red-500/25"
-    >
-      <span className="mr-2">Get Diamond Trivia</span>
-    </Link>
-  );
+function statsFromStorage(raw: Record<string, number> = {}, totalKey: string, correctKey: string) {
+  const total = raw[totalKey] || 0;
+  const correct = raw[correctKey] || 0;
+  return {
+    streak: raw.streak || 0,
+    won: raw.won || 0,
+    winPercent: total ? `${Math.round((correct * 100) / total)}%` : "0%",
+  };
 }
 
 export default function Home() {
+  const [storeLink, setStoreLink] = useState(() => getPreferredStoreLink());
+  const [localStats, setLocalStats] = useState({
+    strikeout: {},
+    reverseImmaculate: {},
+    higherLower: { maxScore: 0 },
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const syncLocalStats = () => {
+      const strikeout = safeJSONParse(localStorage.getItem("diamond_strikeout_stats"));
+      const reverseImmaculate = safeJSONParse(localStorage.getItem("diamond_ri_stats"));
+      const maxScore = Number(localStorage.getItem(hlMaxScoreKey) || 0);
+
+      setLocalStats({
+        strikeout,
+        reverseImmaculate,
+        higherLower: { maxScore },
+      });
+    };
+
+    const id = window.setTimeout(() => {
+      setStoreLink(getPreferredStoreLink(navigator.userAgent));
+      syncLocalStats();
+    }, 0);
+    window.addEventListener("diamond-stats-updated", syncLocalStats);
+    window.addEventListener("storage", syncLocalStats);
+    return () => {
+      window.clearTimeout(id);
+      window.removeEventListener("diamond-stats-updated", syncLocalStats);
+      window.removeEventListener("storage", syncLocalStats);
+    };
+  }, []);
+
+  const momentCopy = {
+    morning: "start strong",
+    afternoon: "keep the rally going",
+    evening: "finish with a streak",
+    night: "stay sharp",
+  }[getDayMoment()];
+
+  const games = useMemo(
+    () => [
+      {
+        title: "Strikeout",
+        description: "Match players to stat clues",
+        backgroundColor: colors.strikeout,
+        iconKey: "strikeout",
+        href: "/strikeout",
+        ...statsFromStorage(
+          localStats.strikeout,
+          "redZoneGamesTotalCells",
+          "redZoneGamesCorrectCells"
+        ),
+      },
+      {
+        title: "Reverse Immaculate",
+        description: "Match teams to players",
+        backgroundColor: colors.gold,
+        iconKey: "reverse",
+        href: "/reverseimmaculate",
+        ...statsFromStorage(
+          localStats.reverseImmaculate,
+          "reverseImmaculateGamesTotalHeaders",
+          "reverseImmaculateGamesCorrectHeaders"
+        ),
+      },
+      {
+        title: "Higher Lower",
+        description: "Pick which player had more",
+        backgroundColor: colors.higherLower,
+        iconKey: "higherlower",
+        href: "/higherlower",
+        maxScore: localStats.higherLower.maxScore,
+      },
+    ],
+    [localStats]
+  );
+
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-50 font-sans selection:bg-red-500 selection:text-white">
-      {/* Navigation */}
-      <header className="flex items-center justify-between px-6 py-6 md:px-12">
-        <div className="flex items-center gap-2">
-          <span className="text-lg font-bold tracking-tight">
-            Diamond Trivia
-          </span>
-        </div>
-      </header>
-
-      {/* Hero Section */}
-      <main className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <div className="max-w-3xl space-y-8">
-          <h1 className="text-5xl font-extrabold tracking-tight sm:text-7xl">
-            Step up to the{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 to-orange-600">
-              plate.
-            </span>
-          </h1>
-
-          <p className="mx-auto max-w-xl text-lg text-zinc-600 dark:text-zinc-400 sm:text-xl">
-            The ultimate trivia experience for baseball purists. Test your
-            knowledge of stats, history, and iconic players.
-          </p>
-
-          <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <DownloadButton />
-
-            <Link
-              href="/strikeout"
-              className="inline-flex h-12 min-w-[160px] items-center justify-center rounded-full border border-zinc-200 bg-white px-8 font-medium text-zinc-900 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800"
+    <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+      <Container
+        maxWidth="lg"
+        sx={{ pt: { xs: "8.25rem", md: "10.75rem" }, pb: { xs: 5.5, md: 7 }, flex: 1 }}
+      >
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" }, gap: { xs: 3.5, md: 5 }, alignItems: "center" }}>
+          <Box>
+            <Typography
+              variant="h1"
+              sx={{ fontSize: { xs: "2.2rem", md: "3.45rem" }, lineHeight: 1.03 }}
             >
-              Play Today's Strikeout
-            </Link>
-          </div>
-        </div>
+              Daily MLB trivia that
+              <Box component="span" sx={{ display: "block" }}>
+                feels like first pitch.
+              </Box>
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={{
+                color: colors.secondaryText,
+                maxWidth: 680,
+                mt: 2,
+                fontSize: { xs: "1rem", md: "1.1rem" },
+              }}
+            >
+              Play daily on web, then unlock more Diamond Trivia in the app. Keep your
+              baseball brain warm and {momentCopy}.
+            </Typography>
 
-        {/* Feature Grid */}
-        <div className="mt-24 grid w-full max-w-5xl grid-cols-1 gap-8 sm:grid-cols-3 text-left">
-          <div className="group rounded-2xl border border-zinc-200 bg-white p-8 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900/50">
-            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <CalendarIcon className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold">Daily Games</h3>
-            <p className="text-zinc-500 dark:text-zinc-400">
-              5 new unique games every single day. Keep your streak alive.
-            </p>
-          </div>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2.9 }}>
+              <Button component={Link} href="/strikeout" size="large">
+                Play Today&apos;s Games
+              </Button>
+              <Button
+                component="a"
+                href={storeLink.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                variant="outlined"
+                size="large"
+                endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
+                sx={{ borderColor: colors.border, color: colors.text }}
+              >
+                {storeLink.label}
+              </Button>
+            </Stack>
+          </Box>
+        </Box>
 
-          <div className="group rounded-2xl border border-zinc-200 bg-white p-8 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900/50">
-            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <DiamondIcon className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold">Game Collections</h3>
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Play curated sets of games handcrafted by MLB fans.
-            </p>
-          </div>
+        <Box sx={{ mt: { xs: 5.8, md: 7.2 } }}>
+          <Typography variant="h2" sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}>
+            Game Lineup
+          </Typography>
+          <Typography variant="body1" sx={{ color: colors.secondaryText, mt: 0.65, mb: 2.6 }}>
+            Strikeout, Reverse Immaculate, and Higher Lower are available on web.
+          </Typography>
 
-          <div className="group rounded-2xl border border-zinc-200 bg-white p-8 transition-shadow hover:shadow-lg dark:border-zinc-800 dark:bg-zinc-900/50">
-            <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-              <TrophyIcon className="h-5 w-5 text-zinc-900 dark:text-zinc-100" />
-            </div>
-            <h3 className="mb-2 text-lg font-semibold">League Standings</h3>
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Compete globally or create private leagues to prove you know ball.
-            </p>
-          </div>
-        </div>
-      </main>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))", lg: "repeat(3, minmax(0, 1fr))" },
+              gap: { xs: 2, sm: 2.5, lg: 3 },
+              mt: 0.2,
+            }}
+          >
+            {games.map((game) => (
+              <Box key={game.title}>
+                <GameModule {...game} />
+              </Box>
+            ))}
+          </Box>
+        </Box>
+      </Container>
 
-      {/* Minimal Footer */}
-      <footer className="w-full border-t border-zinc-200 py-10 text-center dark:border-zinc-800">
-        <p className="text-sm text-zinc-500 dark:text-zinc-500">
-          © {new Date().getFullYear()} Diamond Trivia. Not affiliated with MLB.
-        </p>
-      </footer>
-    </div>
+      <Footer />
+    </Box>
   );
 }

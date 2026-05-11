@@ -1,0 +1,68 @@
+## [Custom] Create WeeklyGridironLeaderboardEntry request with authenticated user ownership.
+#set( $args = $util.defaultIfNull($ctx.stash.transformedArgs, $ctx.args) )
+#set( $mergedValues = $util.defaultIfNull($ctx.stash.defaultValues, {}) )
+$util.qr($mergedValues.putAll($util.defaultIfNull($args.input, {})))
+$util.qr($mergedValues.put("__typename", "WeeklyGridironLeaderboardEntry"))
+
+#set($resolvedUserID = $util.defaultIfNull($ctx.identity.sub, $util.defaultIfNull($mergedValues.userID, "")))
+#set($resolvedUsername = $util.defaultIfNull($mergedValues.username, ""))
+#if($util.isNullOrEmpty($resolvedUsername) && $ctx.identity && $ctx.identity.claims)
+  #set($resolvedUsername = $util.defaultIfNull($ctx.identity.claims.get("cognito:username"), ""))
+#end
+#set($weekET = $util.defaultIfNull($mergedValues.weekET, ""))
+#if($util.isNullOrEmpty($weekET))
+  $util.error("weekET is required for weekly Gridiron leaderboard submissions", "BadRequest")
+#end
+#set($resolvedId = "${weekET}#${resolvedUserID}")
+
+$util.qr($mergedValues.put("id", $resolvedId))
+$util.qr($mergedValues.put("userID", $resolvedUserID))
+$util.qr($mergedValues.put("username", $resolvedUsername))
+$util.qr($mergedValues.put("weekET", $weekET))
+$util.qr($mergedValues.put("scopeKey", $weekET))
+$util.qr($mergedValues.put("userScopeKey", "${resolvedUserID}#${weekET}"))
+
+#set( $nullIndexFields = [] )
+#set( $indexFields = ["scopeKey", "userScopeKey", "userID"] )
+#foreach( $entry in $util.map.copyAndRetainAllKeys($mergedValues, $indexFields).entrySet() )
+  #if( $util.isNull($entry.value) )
+    $util.qr($nullIndexFields.add($entry.key))
+  #end
+#end
+#set( $mergedValues = $util.map.copyAndRemoveAllKeys($mergedValues, $nullIndexFields) )
+
+#set( $PutObject = {
+  "version": "2018-05-29",
+  "operation": "PutItem",
+  "attributeValues": $util.dynamodb.toMapValues($mergedValues),
+  "condition": $condition
+} )
+
+#if( $args.condition )
+  $util.qr($ctx.stash.conditions.add($args.condition))
+#end
+
+$util.qr($ctx.stash.conditions.add({
+  "id": { "attributeExists": false }
+}))
+
+#if( $ctx.stash.conditions && $ctx.stash.conditions.size() != 0 )
+  #set( $mergedConditions = { "and": $ctx.stash.conditions } )
+  #set( $Conditions = $util.parseJson($util.transform.toDynamoDBConditionExpression($mergedConditions)) )
+  #if( $Conditions.expressionValues && $Conditions.expressionValues.size() == 0 )
+    #set( $Conditions = {
+      "expression": $Conditions.expression,
+      "expressionNames": $Conditions.expressionNames
+    } )
+  #end
+#end
+
+#if( $Conditions )
+  $util.qr($PutObject.put("condition", $Conditions))
+#end
+
+#set( $Key = {
+  "id": $util.dynamodb.toDynamoDB($resolvedId)
+} )
+$util.qr($PutObject.put("key", $Key))
+$util.toJson($PutObject)

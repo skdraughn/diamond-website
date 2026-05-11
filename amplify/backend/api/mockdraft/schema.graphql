@@ -502,6 +502,30 @@ type UserReverseImmaculateGame
   shownAnswers: Boolean
 }
 
+type WeeklyGridironLeaderboardEntry
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [create, read, update] }
+      { allow: private, provider: identityPool, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  scopeKey: String! @index(name: "byScopeAndRank", sortKeyFields: ["rankSortKey"])
+  userScopeKey: String
+    @index(name: "byUserScope", sortKeyFields: ["rankSortKey"])
+  userID: ID! @index(name: "byUser")
+  username: String
+  weekET: String!
+  totalGridiron: Int!
+  rankSortKey: String!
+}
+
 type Season
   @model
   @auth(

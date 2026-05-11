@@ -1,0 +1,45 @@
+export const higherLowerGameModes = [
+  {
+    title: "2025 ERA",
+    subtitle: "Pick the pitcher with the lower ERA in 2025",
+    image: "/collection_images/pedro_martinez.jpg",
+    statIndex: 0,
+    threshold: Infinity,
+    isInverse: true,
+  },
+  {
+    title: "2025 Strikeouts",
+    subtitle: "Pick the player with more strikeouts in 2025",
+    image: "/collection_images/juan_soto.jpg",
+    statIndex: 1,
+    threshold: 1,
+  },
+  {
+    title: "2025 Batting Average",
+    subtitle: "Pick the player with the higher batting average in 2025",
+    image: "/collection_images/david_freese.jpg",
+    statIndex: 2,
+    threshold: 0.01,
+  },
+  {
+    title: "2025 Home Runs",
+    subtitle: "Pick the player with more home runs in 2025",
+    image: "/collection_images/trae_turner.jpg",
+    statIndex: 3,
+    threshold: 5,
+  },
+  {
+    title: "2025 RBIs",
+    subtitle: "Pick the player with more RBIs in 2025",
+    image: "/collection_images/bryce_harper.jpg",
+    statIndex: 4,
+    threshold: 5,
+  },
+  {
+    title: "2025 Stolen Bases",
+    subtitle: "Pick the player with more stolen bases in 2025",
+    image: "/collection_images/ricky_henderson.jpg",
+    statIndex: 5,
+    threshold: 5,
+  },
+];

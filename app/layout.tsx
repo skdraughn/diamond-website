@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import ConfigureAmplify from "@/components/ConfigureAmplify";
-import TruflagProvider from "@/components/TruflagProvider";
 import { openGraphImage } from "@/utils/sharedMetadata";
+import ThemeRegistry from "./theme/ThemeRegistry";
+import Header from "./components/Header";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  weight: ["400", "600", "700", "800"],
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -34,8 +38,13 @@ export const metadata: Metadata = {
     description:
       "Play daily MLB trivia. Challenge your baseball brain with Strikeout and Griddle.",
   },
-  viewport: "width=device-width, initial-scale=1",
   metadataBase: new URL("https://www.diamondtrivia.app"),
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#070908",
 };
 
 export default function RootLayout({
@@ -45,12 +54,17 @@ export default function RootLayout({
 }>) {
 
   return (
-    <html lang="en">
+    <html lang="en" className={`${outfit.variable} ${outfit.className}`}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistMono.variable} antialiased`}
       >
         <ConfigureAmplify />
-        <TruflagProvider>{children}</TruflagProvider>
+        <AppRouterCacheProvider>
+          <ThemeRegistry>
+            <Header />
+            {children}
+          </ThemeRegistry>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

@@ -12,6 +12,15 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    "app/[league]/**",
+    "app/**/lobby/page.js",
+    "app/**/refer/page.js",
+    "app/**/view/page.js",
+    "app/privacy/page.tsx",
+    "app/strikeout/PlayStrikeout.tsx",
+    "app/hooks/useHigherLowerGame.js",
+    "src/aws-exports.js",
+    "utils/teamLogoMap.js",
   ]),
 ]);
 

@@ -8,7 +8,8 @@
       "namespace": "android_app",
       "package_name": "com.cliqinvite.diamondtriviaapp",
       "sha256_cert_fingerprints": [
-        "0D:6C:0A:8D:69:2A:50:0F:1E:66:4B:79:76:4B:D9:A4:39:BA:C3:02:32:59:69:6E:AF:A7:15:6E:E6:8D:7F:F8"
+        "0D:6C:0A:8D:69:2A:50:0F:1E:66:4B:79:76:4B:D9:A4:39:BA:C3:02:32:59:69:6E:AF:A7:15:6E:E6:8D:7F:F8",
+        "C2:D2:52:06:87:3A:B5:00:12:B0:E9:2D:64:BF:A1:58:ED:29:1D:E7:42:7C:0B:70:44:E2:6D:95:A0:83:BB:9D"
       ]
     }
   }

@@ -34,7 +34,6 @@ export default function ReverseImmaculatePage() {
       heading="Reverse Immaculate"
       subtitle="Match the teams to the players"
       intro="Instead of filling player names, identify the row and column teams that make the completed grid valid."
-      background={colors.background}
       infoSections={[
         {
           title: "What Is Reverse Immaculate?",

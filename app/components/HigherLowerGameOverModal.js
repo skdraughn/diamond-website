@@ -1,12 +1,20 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { Box, Button, IconButton, Modal, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  IconButton,
+  Modal,
+  Typography,
+} from "@mui/material";
 import { generateClient } from "aws-amplify/api";
 import { Close } from "@mui/icons-material";
 import { colors } from "../theme/colors";
 import { appLinks } from "@/utils/appLinks";
+import GameOverAppPromo from "./GameOverAppPromo";
+import Userbadge from "./Userbadge";
+import { formatRank, getCurrentRank } from "../utils/gridironThresholds";
 
 const higherLowerLeaderboardQuery = /* GraphQL */ `
   query HigherLowerGamesByTypeAndScore(
@@ -33,6 +41,7 @@ const getUserQuery = /* GraphQL */ `
     getUser(id: $id) {
       id
       username
+      gridiron
     }
   }
 `;
@@ -101,6 +110,7 @@ function useHigherLowerLeaderboard() {
 
 export default function HigherLowerGameOverModal({
   visible,
+  onClose,
   score,
   handlePlayAgain,
   interval,
@@ -112,34 +122,48 @@ export default function HigherLowerGameOverModal({
     if (visible) refresh();
   }, [refresh, visible]);
 
+  const handleShare = async () => {
+    const text = `Diamond Trivia Higher Lower\nScore: ${score}\nBest: ${maxScore}\n\n${appLinks.appStore}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Diamond Trivia", text });
+        return;
+      } catch {
+        // Fall through to copying when the share sheet is unavailable.
+      }
+    }
+    await navigator.clipboard?.writeText(text);
+  };
+
   return (
-    <Modal open={visible} onClose={handlePlayAgain}>
+    <Modal
+      open={visible}
+      onClose={onClose}
+      sx={{ display: "flex", alignItems: "center", justifyContent: "center", p: 2 }}
+    >
       <Box
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: "relative",
           width: "90vw",
           maxWidth: 500,
+          maxHeight: "90vh",
+          overflowY: "auto",
           bgcolor: colors.background,
           borderRadius: 3,
           p: 4,
           outline: "none",
-          border: `1px solid ${colors.border}`,
-          boxShadow: "0 24px 80px rgba(0,0,0,0.55)",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-          <Typography variant="h6" color={colors.text}>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <Typography variant="h6" sx={{ color: colors.text }}>
             You got to round {Math.floor(score / interval) + 1}
           </Typography>
-          <IconButton onClick={handlePlayAgain} aria-label="Play again">
+          <IconButton onClick={onClose}>
             <Close sx={{ color: colors.text }} />
           </IconButton>
         </Box>
 
-        <Box sx={{ display: "flex", mt: 2 }}>
+        <Box sx={{ display: "flex" }}>
           <Box
             sx={{
               border: `.2rem solid ${colors.primary}`,
@@ -148,18 +172,14 @@ export default function HigherLowerGameOverModal({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: `${colors.primary}40`,
+              backgroundColor: `${colors.primary}50`,
               borderTopLeftRadius: 6,
               borderBottomLeftRadius: 6,
               py: ".5rem",
             }}
           >
-            <Typography variant="caption" color={colors.text}>
-              SCORE
-            </Typography>
-            <Typography variant="h4" color={colors.text}>
-              {score}
-            </Typography>
+            <Typography variant="caption" sx={{ color: colors.text }}>SCORE</Typography>
+            <Typography variant="h4" sx={{ color: colors.text }}>{score}</Typography>
           </Box>
           <Box
             sx={{
@@ -169,28 +189,23 @@ export default function HigherLowerGameOverModal({
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              backgroundColor: `${colors.gold}35`,
+              backgroundColor: `${colors.gold}50`,
               borderTopRightRadius: 6,
               borderBottomRightRadius: 6,
               py: ".5rem",
             }}
           >
-            <Typography variant="caption" color={colors.text}>
-              BEST
-            </Typography>
-            <Typography variant="h4" color={colors.text}>
-              {maxScore}
-            </Typography>
+            <Typography variant="caption" sx={{ color: colors.text }}>BEST</Typography>
+            <Typography variant="h4" sx={{ color: colors.text }}>{maxScore}</Typography>
           </Box>
         </Box>
 
         <Box
           sx={{
             maxHeight: "30dvh",
-            overflowY: "auto",
+            overflowY: "scroll",
             overflowX: "hidden",
             mt: "2rem",
-            pr: 0.5,
           }}
         >
           {loading ? (
@@ -207,7 +222,6 @@ export default function HigherLowerGameOverModal({
                     flexDirection: "row",
                     alignItems: "center",
                     gap: "8px",
-                    py: 0.5,
                   }}
                   key={player.id}
                 >
@@ -226,26 +240,28 @@ export default function HigherLowerGameOverModal({
                             : index === 2
                               ? "#cd7f32"
                               : "transparent",
-                      borderRadius: 1,
+                      borderRadius: "5px",
                       height: 35,
-                      flexShrink: 0,
                     }}
                   >
-                    <Typography variant="body1" sx={{ fontWeight: 900 }}>
-                      {index + 1}
-                    </Typography>
+                    <Typography variant="h6">{index + 1}</Typography>
                   </Box>
 
-                  <Box sx={{ minWidth: 0 }}>
-                    <Typography variant="body1" sx={{ color: colors.text, fontWeight: 700 }}>
+                  <Userbadge noClick small user={user} />
+                  <Box>
+                    <Typography variant="body1">
                       {getDisplayUsername(user?.username) || "deleted"}
+                    </Typography>
+                    <Typography
+                      variant="body2"
+                      sx={{ color: colors.tertiaryText, mt: "-2px" }}
+                    >
+                      {formatRank(getCurrentRank(user?.gridiron))}
                     </Typography>
                   </Box>
 
                   <Box sx={{ ml: "auto", height: 30 }}>
-                    <Typography variant="h6" sx={{ color: colors.text }}>
-                      {player.score}
-                    </Typography>
+                    <Typography variant="h6">{player.score}</Typography>
                   </Box>
                 </Box>
               );
@@ -257,33 +273,10 @@ export default function HigherLowerGameOverModal({
           )}
         </Box>
 
-        <Typography variant="h6" sx={{ textAlign: "center", my: 2, color: colors.text }}>
-          Play Diamond Trivia on the go
-        </Typography>
-
-        <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2, flexWrap: "wrap" }}>
-          <Image
-            src="/download-on-the-app-store.svg"
-            alt="Download on the App Store"
-            onClick={() => window.open(appLinks.appStore, "_blank")}
-            width={150}
-            height={50}
-            style={{ cursor: "pointer" }}
-          />
-          <Image
-            src="/google_play.png"
-            alt="Get it on Google Play"
-            onClick={() => window.open(appLinks.googlePlay, "_blank")}
-            width={150}
-            height={50}
-            style={{ cursor: "pointer", borderRadius: ".3rem" }}
-          />
-        </Box>
-
-        <Box sx={{ display: "flex" }}>
-          <Button onClick={handlePlayAgain} sx={{ flex: 1 }}>
-            Play Again
-          </Button>
+        <GameOverAppPromo game="Higher Lower" />
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <Button variant="outlined" onClick={handleShare} sx={{ flex: 1 }}>Share</Button>
+          <Button onClick={handlePlayAgain} sx={{ flex: 1 }}>Play Again</Button>
         </Box>
       </Box>
     </Modal>

@@ -6,7 +6,7 @@ const theme = createTheme({
     mode: "dark",
     primary: {
       main: colors.primary,
-      contrastText: "#fff",
+      contrastText: colors.chalk,
     },
     secondary: {
       main: colors.gold,
@@ -50,7 +50,8 @@ const theme = createTheme({
       styleOverrides: {
         body: {
           background:
-            "radial-gradient(1000px circle at 20% -10%, rgba(240,68,56,0.18), transparent 40%), radial-gradient(850px circle at 100% 0%, rgba(47,158,68,0.14), transparent 42%), #070908",
+            "radial-gradient(900px circle at 82% -8%, rgba(19,114,74,0.30), transparent 46%), radial-gradient(720px circle at 5% 16%, rgba(67,183,255,0.14), transparent 48%), linear-gradient(145deg, #071522 0%, #0b2b37 43%, #123a2d 100%)",
+          backgroundAttachment: "fixed",
         },
       },
     },
@@ -61,11 +62,13 @@ const theme = createTheme({
       },
       styleOverrides: {
         root: {
-          borderRadius: 8,
+          borderRadius: 10,
           padding: "9px 18px",
           boxShadow: "none",
+          border: "1px solid rgba(220,235,255,0.15)",
           "&:hover": {
             boxShadow: "none",
+            backgroundColor: "#185f43",
           },
           "&:focus-visible": {
             outline: `2px solid ${colors.focus}`,

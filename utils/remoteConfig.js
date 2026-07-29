@@ -14,7 +14,7 @@ export const REMOTE_CONFIG_KEYS = {
 };
 
 export const REMOTE_CONFIG_DEFAULTS = {
-  [REMOTE_CONFIG_KEYS.playersFileName]: "players_basic_1.json",
+  [REMOTE_CONFIG_KEYS.playersFileName]: "players_2026_04_09.json",
   [REMOTE_CONFIG_KEYS.numStrikes]: "3",
 };
 

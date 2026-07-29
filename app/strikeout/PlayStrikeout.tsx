@@ -7,9 +7,10 @@ import {
   Box,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
+  Grid,
+  IconButton,
   List,
   ListItemButton,
   Paper,
@@ -17,15 +18,30 @@ import {
   Stack,
   TextField,
   Typography,
-  useMediaQuery,
-  useTheme,
 } from "@mui/material";
-import SportsBaseballRoundedIcon from "@mui/icons-material/SportsBaseballRounded";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { appLinks } from "@/utils/appLinks";
 import useTriviaPlayers from "@/utils/useTriviaPlayers";
 import { STATIC_TEAMS } from "@/utils/teams";
 import { teamLogoMap } from "@/utils/teamLogoMap";
 import { colors } from "../theme/colors";
+
+const STRIKEOUT_STATE_PREFIX = "diamond_strikeout_game_";
+
+function loadStrikeoutState(gameID: string) {
+  if (typeof window === "undefined" || !gameID) return null;
+  try {
+    const raw = localStorage.getItem(`${STRIKEOUT_STATE_PREFIX}${gameID}`);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveStrikeoutState(gameID: string, state: Record<string, any>) {
+  if (typeof window === "undefined" || !gameID) return;
+  localStorage.setItem(`${STRIKEOUT_STATE_PREFIX}${gameID}`, JSON.stringify(state));
+}
 
 const customRedZoneGamesByDate = /* GraphQL */ `
   query RedZoneGamesByDate(
@@ -149,7 +165,7 @@ function StrikeoutHeader({ title, subtitle, prompt, score, strikes, numStrikes }
           <Typography
             variant="h1"
             align="center"
-            sx={{ color: colors.primary, fontSize: { xs: "2.1rem", md: "3rem" }, lineHeight: 1 }}
+            sx={{ color: colors.strikeout, fontSize: { xs: "2.1rem", md: "3rem" }, lineHeight: 1 }}
           >
             {strikes}
             <Typography variant="caption" component="span">
@@ -361,36 +377,158 @@ function StrikeoutCell({
   );
 }
 
-function CompleteDialog({ open, isCompleted, score, strikes, total, onClose, onShare, onTryAgain }: any) {
+function CompleteDialog({
+  open,
+  isCompleted,
+  score,
+  strikes,
+  total,
+  stats,
+  onClose,
+  onShare,
+  onTryAgain,
+}: any) {
+  const correctPercent = stats?.redZoneGamesTotalCells
+    ? Math.round(
+        (stats.redZoneGamesCorrectCells / stats.redZoneGamesTotalCells) * 100
+      )
+    : 0;
+  const winPercent = stats?.played
+    ? Math.round(((stats.won || 0) / stats.played) * 100)
+    : 0;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle sx={{ fontWeight: 900, color: isCompleted ? colors.grass : colors.primary }}>
-        {isCompleted ? "You Won!" : "You Lost"}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.78)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+        paper: {
+          sx: {
+            backgroundColor: colors.background,
+            backgroundImage: "none",
+            border: `1px solid ${colors.border}`,
+            borderRadius: 3,
+            boxShadow: "0 24px 80px rgba(0,0,0,0.62)",
+            overflow: "hidden",
+          },
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+          pb: 1,
+        }}
+      >
+        <Typography
+          component="span"
+          variant="h6"
+          sx={{
+            fontWeight: 900,
+            color: isCompleted ? colors.grass : colors.strikeout,
+          }}
+        >
+          {isCompleted ? "You Won!" : "You Lost"}
+        </Typography>
+        <IconButton onClick={onClose} aria-label="Close game result">
+          <CloseRoundedIcon sx={{ color: colors.text }} />
+        </IconButton>
       </DialogTitle>
-      <DialogContent>
-        <Stack spacing={1.25}>
-          <Typography sx={{ color: colors.secondaryText }}>
-            You got {score} out of {total} correct with {strikes} strikes.
+      <DialogContent sx={{ pt: "4px !important", pb: 3 }}>
+        <Typography sx={{ color: colors.text, mb: 2.5 }}>
+          You got {score} out of {total} correct with {strikes} strikes.
+        </Typography>
+
+        <Box
+          sx={{
+            p: 2,
+            mb: 2.5,
+            borderRadius: 2,
+            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.backgroundHighlight,
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{ color: colors.secondaryText, fontWeight: 800, mb: 1.5 }}
+          >
+            Your Stats
           </Typography>
-          <Typography sx={{ color: colors.secondaryText }}>
-            Download the app to track stats, keep streaks, and compete on leaderboards.
+          <Grid container spacing={1.5}>
+            {[
+              { label: "Played", value: stats?.played || 0, size: 3 },
+              { label: "Win %", value: `${winPercent}%`, size: 3 },
+              { label: "Win Streak", value: stats?.streak || 0, size: 3 },
+              { label: "Max Streak", value: stats?.maxStreak || 0, size: 3 },
+              {
+                label: "Total Correct Cells",
+                value: stats?.redZoneGamesCorrectCells || 0,
+                size: 6,
+              },
+              { label: "Correct %", value: `${correctPercent}%`, size: 6 },
+            ].map((item) => (
+              <Grid key={item.label} size={item.size} sx={{ textAlign: "center" }}>
+                <Typography variant="h6" sx={{ color: colors.text, fontWeight: 900 }}>
+                  {item.value}
+                </Typography>
+                <Typography variant="caption" sx={{ color: colors.secondaryText }}>
+                  {item.label}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        <Box
+          sx={{
+            p: 2,
+            mb: 2.5,
+            borderRadius: 2,
+            border: `1px solid ${colors.primary}70`,
+            background:
+              "linear-gradient(140deg, rgba(19,114,74,0.34), rgba(14,34,56,0.95))",
+          }}
+        >
+          <Typography sx={{ color: colors.text, fontWeight: 900 }}>
+            More baseball trivia is waiting in the app
           </Typography>
-        </Stack>
-      </DialogContent>
-      <DialogActions sx={{ flexWrap: "wrap", gap: 1, px: 3, pb: 2 }}>
-        <Button onClick={onShare}>Share</Button>
-        {!isCompleted ? (
-          <Button variant="outlined" onClick={onTryAgain}>
+          <Typography variant="body2" sx={{ color: colors.secondaryText, mt: 0.5, mb: 1.5 }}>
+            Play collections, climb leaderboards, and compete with other MLB fans.
+          </Typography>
+          <Button
+            component="a"
+            href={appLinks.appStore}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+          >
+            Download Diamond Trivia
+          </Button>
+        </Box>
+
+        <Stack direction="row" spacing={1.25}>
+          <Button fullWidth variant="outlined" onClick={onTryAgain}>
             Try Again
           </Button>
-        ) : null}
-        <Button component="a" href={appLinks.appStore} target="_blank" rel="noopener noreferrer" variant="outlined">
-          App Store
-        </Button>
-        <Button onClick={onClose} variant="text">
+          <Button fullWidth onClick={onShare}>
+            Share
+          </Button>
+        </Stack>
+        <Button fullWidth onClick={onClose} variant="text" sx={{ mt: 1.25 }}>
           Review Board
         </Button>
-      </DialogActions>
+      </DialogContent>
     </Dialog>
   );
 }
@@ -398,9 +536,8 @@ function CompleteDialog({ open, isCompleted, score, strikes, total, onClose, onS
 export default function PlayStrikeout() {
   const client = useMemo(() => generateClient(), []);
   const date = getTodayDate();
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
   const recordedStatsRef = useRef(false);
+  const restoredGameRef = useRef<string | null>(null);
   const { basicPlayers, loading: playersLoading } = useTriviaPlayers();
 
   const [game, setGame] = useState<any>(null);
@@ -413,6 +550,7 @@ export default function PlayStrikeout() {
   const [answersShown, setAnswersShown] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [resultsDismissed, setResultsDismissed] = useState(false);
+  const [resultStats, setResultStats] = useState<any>(null);
 
   const numStrikes = game?.numStrikes || 3;
   const isGameOver = game ? strikes >= numStrikes : false;
@@ -442,6 +580,31 @@ export default function PlayStrikeout() {
         if (unlocked?.cells) {
           unlocked.cells.sort((a: any, b: any) => a.index - b.index);
         }
+
+        if (unlocked?.id) {
+          const saved = loadStrikeoutState(unlocked.id);
+          if (saved) {
+            setStrikes(Number(saved.strikes) || 0);
+            setScore(Number(saved.score) || 0);
+            setMatched(saved.matched && typeof saved.matched === "object" ? saved.matched : {});
+            setGuesses(Array.isArray(saved.guesses) ? saved.guesses : []);
+            setAnswersShown(Boolean(saved.answersShown));
+            // A dismissal only lasts for the current visit. Returning to a
+            // completed daily game should show its result again.
+            setResultsDismissed(false);
+            recordedStatsRef.current = Boolean(saved.statsRecorded);
+            if (saved.statsRecorded) {
+              try {
+                setResultStats(
+                  JSON.parse(localStorage.getItem("diamond_strikeout_stats") || "{}")
+                );
+              } catch {
+                setResultStats(null);
+              }
+            }
+          }
+          restoredGameRef.current = unlocked.id;
+        }
         setGame(unlocked || null);
       } catch (err) {
         console.error("Error fetching Strikeout game:", err);
@@ -461,12 +624,17 @@ export default function PlayStrikeout() {
       const raw = localStorage.getItem("diamond_strikeout_stats");
       const previous = raw ? JSON.parse(raw) : {};
       const next = {
+        played: (previous.played || 0) + 1,
         streak: won ? (previous.streak || 0) + 1 : 0,
+        maxStreak: won
+          ? Math.max(previous.maxStreak || 0, (previous.streak || 0) + 1)
+          : previous.maxStreak || 0,
         won: (previous.won || 0) + (won ? 1 : 0),
         redZoneGamesCorrectCells: (previous.redZoneGamesCorrectCells || 0) + score,
         redZoneGamesTotalCells: (previous.redZoneGamesTotalCells || 0) + game.cells.length,
       };
       localStorage.setItem("diamond_strikeout_stats", JSON.stringify(next));
+      setResultStats(next);
       window.dispatchEvent(new Event("diamond-stats-updated"));
       recordedStatsRef.current = true;
     }
@@ -476,6 +644,19 @@ export default function PlayStrikeout() {
       return () => window.clearTimeout(timer);
     }
   }, [game, isFinished, resultsDismissed, score]);
+
+  useEffect(() => {
+    if (!game?.id || restoredGameRef.current !== game.id) return;
+    saveStrikeoutState(game.id, {
+      strikes,
+      score,
+      matched,
+      guesses,
+      answersShown,
+      resultsDismissed,
+      statsRecorded: recordedStatsRef.current,
+    });
+  }, [answersShown, game?.id, guesses, matched, resultsDismissed, score, strikes]);
 
   const playerById = useMemo(
     () => Object.fromEntries((basicPlayers || []).map((player: any) => [player.id, player])),
@@ -522,13 +703,11 @@ export default function PlayStrikeout() {
   };
 
   const handleTryAgain = () => {
-    setScore(0);
     setStrikes(0);
-    setMatched({});
-    setGuesses([]);
     setAnswersShown(false);
     setModalVisible(false);
     setResultsDismissed(false);
+    setResultStats(null);
     recordedStatsRef.current = false;
   };
 
@@ -554,32 +733,6 @@ export default function PlayStrikeout() {
 
   return (
     <>
-      <Box sx={{ display: "flex", justifyContent: "center", width: "100%", position: "relative", mb: "1rem" }}>
-        <Box sx={{ display: "flex", alignItems: "center", width: "100%", gap: { xs: ".75rem", md: "1.5rem" } }}>
-          <Box
-            sx={{
-              width: isSmallScreen ? 34 : 60,
-              height: isSmallScreen ? 34 : 60,
-              display: "grid",
-              placeItems: "center",
-              borderRadius: 2,
-              bgcolor: "rgba(240,68,56,0.14)",
-              border: `1px solid ${colors.border}`,
-            }}
-          >
-            <SportsBaseballRoundedIcon sx={{ color: colors.primary, fontSize: isSmallScreen ? 22 : 36 }} />
-          </Box>
-          <Box>
-            <Typography variant="h2" sx={{ fontSize: { xs: "1.5rem", md: "2.5rem" }, lineHeight: 1 }}>
-              {game.title || "Strikeout"}
-            </Typography>
-            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Daily Game {game.date || date}
-            </Typography>
-          </Box>
-        </Box>
-      </Box>
-
       <StrikeoutHeader
         title={game.title || "Strikeout"}
         subtitle={game.subtitle}
@@ -648,6 +801,7 @@ export default function PlayStrikeout() {
         score={score}
         strikes={strikes}
         total={game.cells.length}
+        stats={resultStats}
         onShare={handleShare}
         onTryAgain={handleTryAgain}
       />

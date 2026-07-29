@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Box, Card, CardContent, Typography } from "@mui/material";
@@ -18,105 +18,101 @@ export default function HigherLowerPlayerCard({
   statRevealed = true,
   correct,
   incorrect,
+  frozen = false,
   setStatRevealed,
   setCorrectIndex,
 }) {
   const [localPlayer, setLocalPlayer] = useState(player);
-  const [initialAnimationDone, setInitialAnimationDone] = useState(false);
-  const statRevealedRef = useRef(statRevealed);
-  const setStatRevealedRef = useRef(setStatRevealed);
-  const setCorrectIndexRef = useRef(setCorrectIndex);
 
   useEffect(() => {
-    statRevealedRef.current = statRevealed;
-    setStatRevealedRef.current = setStatRevealed;
-    setCorrectIndexRef.current = setCorrectIndex;
-  }, [setCorrectIndex, setStatRevealed, statRevealed]);
+    if (!player || frozen) return undefined;
 
-  useEffect(() => {
-    if (!player) return undefined;
-
-    if (!statRevealedRef.current) {
+    if (!statRevealed) {
       const id = window.setTimeout(() => setLocalPlayer(player), 0);
+      setCorrectIndex(-1);
       return () => window.clearTimeout(id);
     }
 
     const id = window.setTimeout(() => {
       setLocalPlayer(player);
-      setStatRevealedRef.current(false);
-      setCorrectIndexRef.current(-1);
+      setStatRevealed(false);
+      setCorrectIndex(-1);
     }, 1400);
 
     return () => window.clearTimeout(id);
-  }, [player]);
+  }, [frozen, player, setCorrectIndex, setStatRevealed, statRevealed]);
 
   const bgColor = correct
-    ? "rgba(43, 103, 81, 0.88)"
+    ? colors.correct
     : incorrect
-      ? "rgba(161, 71, 71, 0.88)"
-      : "#000";
+      ? colors.incorrect
+      : colors.backgroundHighlight;
 
   const borderColor = correct
     ? colors.grass
     : incorrect
-      ? colors.primary
-      : "#000";
+      ? colors.strikeout
+      : colors.border;
   const logoSrc = getTeamLogoSource(localPlayer?.team?.logoURL);
-  const initialMotion = initialAnimationDone
-    ? { x: "100%", opacity: 0 }
-    : { y: 14, opacity: 0, scale: 0.98 };
-  const animateMotion = initialAnimationDone
-    ? { x: 0, opacity: 1, transition: { duration: 0.15 } }
-    : { y: 0, opacity: 1, scale: 1, transition: { duration: 0.22, ease: "easeOut" } };
-
   return (
     <AnimatePresence mode="wait">
       <motion.div
         key={`${localPlayer?.name || "player"}-${localPlayer?.stat || "stat"}`}
-        initial={initialMotion}
-        animate={animateMotion}
+        initial={{ x: "100%", opacity: 0 }}
+        animate={{ x: 0, opacity: 1, transition: { duration: 0.15 } }}
         exit={{ x: "-100%", opacity: 0, transition: { duration: 0.12 } }}
-        onAnimationComplete={() => {
-          if (!initialAnimationDone) setInitialAnimationDone(true);
-        }}
-        style={{ width: "100%", height: "100%", backgroundColor: "#000" }}
+        style={{ width: "100%", height: "100%" }}
       >
         <Card
           sx={{
             height: "100%",
             bgcolor: bgColor,
             borderRadius: 2,
-            border: ".3rem solid",
+            border: "1px solid",
             borderColor,
-            position: "relative",
             overflow: "hidden",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             textAlign: "center",
-            minHeight: { xs: 210, md: 250 },
-            py: { xs: 5, md: 7 },
+            px: { xs: 2, md: 3 },
+            py: { xs: 4, md: 5 },
+            transition: "background-color 160ms ease, border-color 160ms ease",
           }}
         >
-          {logoSrc ? (
-            <Box sx={{ position: "absolute", inset: 0, opacity: 0.26 }}>
+          <CardContent
+            sx={{
+              p: 0,
+              width: "100%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              "&:last-child": { pb: 0 },
+            }}
+          >
+            {logoSrc ? (
               <Image
                 src={logoSrc}
-                alt={localPlayer?.team?.name || ""}
-                fill
-                sizes="540px"
-                style={{ objectFit: "contain" }}
+                alt={`${localPlayer?.team?.name || "Team"} logo`}
+                width={80}
+                height={80}
+                style={{
+                  width: "80px",
+                  height: "80px",
+                  objectFit: "contain",
+                  marginBottom: "10px",
+                }}
               />
-            </Box>
-          ) : null}
-
-          <CardContent sx={{ zIndex: 1, px: 2 }}>
-            <Typography variant="h6" fontWeight={700} color="common.white">
+            ) : null}
+            <Typography
+              variant="h5"
+              sx={{ color: "common.white", fontWeight: 900, lineHeight: 1.2 }}
+            >
               {localPlayer?.name}
             </Typography>
-            <Typography variant="subtitle2" sx={{ color: colors.text }}>
+            <Typography variant="subtitle2" sx={{ color: colors.secondaryText, mt: 0.5 }}>
               Started {localPlayer?.startYear}
-              {" | "}
+              {" • "}
               <Box
                 component="span"
                 sx={{
@@ -133,21 +129,22 @@ export default function HigherLowerPlayerCard({
             <Box
               sx={{
                 mt: 2,
-                px: 3,
-                py: 1,
-                bgcolor: "#000",
-                borderRadius: 1,
+                px: 3.5,
+                py: 1.25,
+                bgcolor: colors.background,
+                borderRadius: 1.5,
+                border: `1px solid ${colors.border}`,
                 display: "inline-block",
               }}
             >
               <Typography
                 variant="h6"
-                fontWeight={800}
+                fontWeight={700}
                 sx={{
                   color: correct
                     ? colors.grass
                     : incorrect
-                      ? colors.primary
+                      ? colors.strikeout
                       : "common.white",
                 }}
               >

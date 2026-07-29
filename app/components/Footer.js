@@ -16,7 +16,7 @@ export default function Footer({ sx = {} }) {
         py: { xs: 2.5, md: 3 },
         width: "100%",
         borderTop: `1px solid ${colors.border}`,
-        bgcolor: "rgba(7,9,8,0.75)",
+        bgcolor: "rgba(7,18,32,0.78)",
         ...sx,
       }}
     >

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { Box, Button, Container, Stack, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import Footer from "./components/Footer";
 import GameModule from "./components/GameModule";
@@ -18,14 +18,6 @@ function safeJSONParse(value: string | null, fallback = {}) {
   } catch {
     return fallback;
   }
-}
-
-function getDayMoment() {
-  const currentHour = new Date().getHours();
-  if (currentHour >= 17) return "evening";
-  if (currentHour >= 12) return "afternoon";
-  if (currentHour >= 4) return "morning";
-  return "night";
 }
 
 function statsFromStorage(raw: Record<string, number> = {}, totalKey: string, correctKey: string) {
@@ -74,13 +66,6 @@ export default function Home() {
     };
   }, []);
 
-  const momentCopy = {
-    morning: "start strong",
-    afternoon: "keep the rally going",
-    evening: "finish with a streak",
-    night: "stay sharp",
-  }[getDayMoment()];
-
   const games = useMemo(
     () => [
       {
@@ -120,20 +105,48 @@ export default function Home() {
   );
 
   return (
-    <Box sx={{ minHeight: "100dvh", display: "flex", flexDirection: "column" }}>
+    <Box
+      sx={{
+        minHeight: "100dvh",
+        display: "flex",
+        flexDirection: "column",
+        position: "relative",
+        isolation: "isolate",
+      }}
+    >
       <Container
         maxWidth="lg"
         sx={{ pt: { xs: "8.25rem", md: "10.75rem" }, pb: { xs: 5.5, md: 7 }, flex: 1 }}
       >
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "2fr 1fr" }, gap: { xs: 3.5, md: 5 }, alignItems: "center" }}>
+        <Box
+          sx={{
+            maxWidth: 780,
+          }}
+        >
           <Box>
             <Typography
-              variant="h1"
-              sx={{ fontSize: { xs: "2.2rem", md: "3.45rem" }, lineHeight: 1.03 }}
+              variant="overline"
+              sx={{
+                color: colors.ice,
+                fontWeight: 800,
+                letterSpacing: "0.14em",
+                fontSize: "0.73rem",
+              }}
             >
-              Daily MLB trivia that
-              <Box component="span" sx={{ display: "block" }}>
-                feels like first pitch.
+              DAILY MLB TRIVIA
+            </Typography>
+            <Typography
+              variant="h1"
+              sx={{
+                fontSize: { xs: "2.35rem", md: "3.65rem" },
+                lineHeight: 1.02,
+                mt: 0.8,
+                maxWidth: 760,
+              }}
+            >
+              Know baseball?
+              <Box component="span" sx={{ display: "block", color: colors.ice }}>
+                Prove it every day.
               </Box>
             </Typography>
             <Typography
@@ -145,13 +158,13 @@ export default function Home() {
                 fontSize: { xs: "1rem", md: "1.1rem" },
               }}
             >
-              Play daily on web, then unlock more Diamond Trivia in the app. Keep your
-              baseball brain warm and {momentCopy}.
+              Play today&apos;s MLB trivia lineup on the web, build your streaks, and
+              take collections, leaderboards, multiplayer, and more into the Diamond app.
             </Typography>
 
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2.9 }}>
               <Button component={Link} href="/strikeout" size="large">
-                Play Today&apos;s Games
+                Play Today&apos;s Lineup
               </Button>
               <Button
                 component="a"
@@ -174,23 +187,21 @@ export default function Home() {
             Game Lineup
           </Typography>
           <Typography variant="body1" sx={{ color: colors.secondaryText, mt: 0.65, mb: 2.6 }}>
-            Strikeout, Reverse Immaculate, and Higher Lower are available on web.
+            Three distinct ways to test your baseball knowledge, updated daily.
           </Typography>
 
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, minmax(0, 1fr))", lg: "repeat(3, minmax(0, 1fr))" },
-              gap: { xs: 2, sm: 2.5, lg: 3 },
-              mt: 0.2,
-            }}
+          <Grid
+            container
+            rowSpacing={{ xs: 3.5, md: 4 }}
+            columnSpacing={{ xs: 2, sm: 2.5, lg: 3 }}
+            sx={{ mt: 0.2 }}
           >
             {games.map((game) => (
-              <Box key={game.title}>
+              <Grid key={game.title} size={{ xs: 12, sm: 6, lg: 4 }}>
                 <GameModule {...game} />
-              </Box>
+              </Grid>
             ))}
-          </Box>
+          </Grid>
         </Box>
       </Container>
 

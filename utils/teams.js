@@ -37,7 +37,7 @@ export const STATIC_TEAMS = [
   {
     id: "chicago-white-sox",
     name: "Chicago White Sox",
-    abbrs: ["CHW"],
+    abbrs: ["CHW", "CWS"],
     logoURL: "chicago-white-sox",
     abbreviation: "CHW",
   },
@@ -79,7 +79,7 @@ export const STATIC_TEAMS = [
   {
     id: "kansas-city-royals",
     name: "Kansas City Royals",
-    abbrs: ["KCR"],
+    abbrs: ["KC", "KCR"],
     logoURL: "kansas-city-royals",
     abbreviation: "KCR",
   },
@@ -156,14 +156,14 @@ export const STATIC_TEAMS = [
   {
     id: "san-diego-padres",
     name: "San Diego Padres",
-    abbrs: ["SDP"],
+    abbrs: ["SD", "SDP"],
     logoURL: "san-diego-padres",
     abbreviation: "SDP",
   },
   {
     id: "san-francisco-giants",
     name: "San Francisco Giants",
-    abbrs: ["NYG", "SFG"],
+    abbrs: ["NYG", "SF", "SFG"],
     logoURL: "san-francisco-giants",
     abbreviation: "NYG",
   },
@@ -184,7 +184,7 @@ export const STATIC_TEAMS = [
   {
     id: "tampa-bay-rays",
     name: "Tampa Bay Rays",
-    abbrs: ["TBD", "TBR"],
+    abbrs: ["TB", "TBD", "TBR"],
     logoURL: "tampa-bay-rays",
     abbreviation: "TBD",
   },
@@ -205,7 +205,7 @@ export const STATIC_TEAMS = [
   {
     id: "washington-nationals",
     name: "Washington Nationals",
-    abbrs: ["MON", "WSN"],
+    abbrs: ["MON", "WSH", "WSN"],
     logoURL: "washington-nationals",
     abbreviation: "MON",
   },

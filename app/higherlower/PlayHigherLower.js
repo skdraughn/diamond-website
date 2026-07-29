@@ -1,13 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import {
   Box,
   Button,
   Container,
   Divider,
   LinearProgress,
+  Paper,
   Skeleton,
   Stack,
   Typography,
@@ -50,10 +50,6 @@ function resolveTeam(player, teamLookup) {
   return null;
 }
 
-function getLogoSource(logo) {
-  return logo?.default || logo || null;
-}
-
 function usePageVisibility(onVisible) {
   useEffect(() => {
     const handler = () => document.visibilityState === "visible" && onVisible();
@@ -67,6 +63,8 @@ export default function PlayHigherLower() {
   const [firstPlayerStatRevealed, setFirstPlayerStatRevealed] = useState(false);
   const [secondPlayerStatRevealed, setSecondPlayerStatRevealed] = useState(false);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
+  const [gameSession, setGameSession] = useState(0);
+  const [logosReady, setLogosReady] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_TIME);
   const [progress, setProgress] = useState(100);
   const timerRef = useRef(null);
@@ -74,6 +72,33 @@ export default function PlayHigherLower() {
   const countdownActive = useRef(false);
   const hasPressed = useRef(false);
   const latestScoreRef = useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const logoSources = Object.values(teamLogoMap)
+      .map((logo) => logo?.default || logo)
+      .map((logo) => logo?.src || logo)
+      .filter(Boolean);
+
+    Promise.all(
+      logoSources.map(
+        (src) =>
+          new Promise((resolve) => {
+            const image = new window.Image();
+            image.onload = resolve;
+            image.onerror = resolve;
+            image.src = src;
+            if (image.complete) resolve();
+          })
+      )
+    ).then(() => {
+      if (!cancelled) setLogosReady(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const markComplete = useCallback(() => {
     if (typeof window === "undefined") return;
@@ -87,12 +112,18 @@ export default function PlayHigherLower() {
     setGameOverModalVisible(true);
   }, []);
 
+  const prepareModeChange = useCallback(() => {
+    setFirstPlayerStatRevealed(false);
+    setSecondPlayerStatRevealed(false);
+  }, []);
+
   const {
     loading,
     currentMode,
     firstPlayer,
     secondPlayer,
     score,
+    modeTransitioning,
     handleGuess,
     correctIndex,
     setCorrectIndex,
@@ -100,7 +131,17 @@ export default function PlayHigherLower() {
     error,
     selectedFileName,
     refreshPlayers,
-  } = useHigherLowerGame(() => markComplete());
+  } = useHigherLowerGame(() => markComplete(), prepareModeChange);
+
+  const handleRestart = useCallback(() => {
+    window.clearInterval(timerRef.current);
+    countdownActive.current = false;
+    resetGame();
+    setGameSession((session) => session + 1);
+    setFirstPlayerStatRevealed(false);
+    setSecondPlayerStatRevealed(false);
+    setGameOverModalVisible(false);
+  }, [resetGame]);
 
   useEffect(() => {
     latestScoreRef.current = score;
@@ -173,7 +214,14 @@ export default function PlayHigherLower() {
   );
 
   useEffect(() => {
-    if (!firstPlayer || !secondPlayer || gameOverModalVisible) return undefined;
+    if (
+      !firstPlayer ||
+      !secondPlayer ||
+      gameOverModalVisible ||
+      modeTransitioning
+    ) {
+      return undefined;
+    }
 
     const delay = score % interval === 0 && score !== 0 ? 0 : 1400;
     const id = window.setTimeout(() => startCountdown(), delay);
@@ -185,6 +233,7 @@ export default function PlayHigherLower() {
     firstPlayer,
     secondPlayer,
     gameOverModalVisible,
+    modeTransitioning,
     score,
     startCountdown,
   ]);
@@ -293,6 +342,7 @@ export default function PlayHigherLower() {
   if (
     loading ||
     teamsLoading ||
+    !logosReady ||
     !firstPlayer ||
     !secondPlayer ||
     !passedFirstPlayer ||
@@ -315,126 +365,144 @@ export default function PlayHigherLower() {
 
   return (
     <>
-      {Object.values(teamLogoMap).map((img, index) => {
-        const src = getLogoSource(img);
-        return src ? (
-          <Image
-            key={`preload-logo-${index}`}
-            src={src}
-            alt=""
-            height={200}
-            width={200}
-            style={{ display: "none" }}
-          />
-        ) : null;
-      })}
-
       <Container
         maxWidth="lg"
         sx={{
-          py: 4,
+          py: { xs: 2, md: 3 },
+          px: { xs: 1, sm: 2 },
           display: "flex",
           flexDirection: "column",
-          position: "relative",
-          borderRadius: ".5rem",
-          overflow: "hidden",
-          border: `1px solid ${colors.border}`,
-          boxShadow: "0 24px 80px rgba(0,0,0,0.32)",
         }}
       >
-        {currentMode?.image ? (
-          <Image
-            fill
-            src={currentMode.image}
-            alt="Current mode background"
-            sizes="1200px"
-            style={{
-              height: "100%",
-              position: "absolute",
-              width: "100%",
-              objectFit: "cover",
-              filter: "brightness(42%)",
-            }}
-          />
-        ) : null}
-
         <HigherLowerGameOverModal
           visible={gameOverModalVisible}
+          onClose={handleRestart}
           score={score}
-          handlePlayAgain={() => {
-            resetGame();
-            setGameOverModalVisible(false);
-          }}
+          handlePlayAgain={handleRestart}
           interval={interval}
           maxScore={maxScore}
         />
 
-        <Box sx={{ zIndex: 1 }}>
-          <Typography variant="subtitle2" sx={{ color: colors.gold, textAlign: "center", fontWeight: 900 }}>
+        <Paper
+          sx={{
+            p: { xs: 1.5, sm: 2.5, md: 3 },
+            bgcolor: colors.surface,
+            border: `1px solid ${colors.border}`,
+            borderRadius: 2,
+            boxShadow: "none",
+            backgroundImage: "none",
+          }}
+        >
+          <Typography
+            variant="subtitle2"
+            sx={{
+              color: colors.gold,
+              textAlign: "center",
+              fontWeight: 800,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+            }}
+          >
             {currentMode?.isInverse ? "Who Had Less" : "Who Had More"}
           </Typography>
-          <Typography variant="h4" align="center" mb={2} sx={{ fontWeight: 900 }}>
+          <Typography variant="h4" align="center" sx={{ mt: 0.25, mb: 2.5, fontWeight: 900 }}>
             {currentMode?.title?.split(" in")[0]}
           </Typography>
 
-          <Box sx={{ position: "relative", width: "100%", mb: 3 }}>
-            <LinearProgress
-              variant="determinate"
-              value={progress}
-              sx={{
-                height: "1.5rem",
-                borderRadius: 2,
-                backgroundColor: "grey.700",
-                "& .MuiLinearProgress-bar": { backgroundColor: colors.primary },
-              }}
-            />
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", mb: 2 }}>
             <Typography
-              variant="caption"
               sx={{
-                position: "absolute",
-                left: 8,
-                top: "50%",
-                transform: "translateY(-50%)",
-                fontSize: "1.25rem",
+                minWidth: 30,
+                height: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: colors.text,
+                fontSize: "1rem",
                 fontWeight: 900,
+                lineHeight: 1,
+                textAlign: "center",
               }}
             >
               {secondsLeft}
             </Typography>
-          </Box>
+            <LinearProgress
+              variant="determinate"
+              value={progress}
+              sx={{
+                flex: 1,
+                height: 10,
+                borderRadius: 999,
+                bgcolor: colors.background,
+                "& .MuiLinearProgress-bar": {
+                  borderRadius: 999,
+                  bgcolor: colors.strikeout,
+                },
+              }}
+            />
+          </Stack>
 
-          <Box sx={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <Box sx={{ display: "flex", gap: ".5rem" }}>
-              <Typography variant="body1" sx={{ color: colors.primary, fontWeight: 900 }}>
+          <Stack direction="row" sx={{ gap: 1, mb: 2 }}>
+            <Box
+              sx={{
+                flex: 1,
+                px: 1.5,
+                py: 1,
+                bgcolor: colors.backgroundHighlight,
+                borderRadius: 1.5,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <Typography sx={{ color: colors.primary, fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.08em" }}>
                 SCORE
               </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 900 }}>{score}</Typography>
+              <Typography sx={{ fontSize: "1.3rem", fontWeight: 900 }}>{score}</Typography>
             </Box>
-            <Box sx={{ display: "flex", gap: ".5rem" }}>
-              <Typography variant="body1" sx={{ color: colors.gold, fontWeight: 900 }}>
+            <Box
+              sx={{
+                flex: 1,
+                px: 1.5,
+                py: 1,
+                bgcolor: colors.backgroundHighlight,
+                borderRadius: 1.5,
+                border: `1px solid ${colors.border}`,
+              }}
+            >
+              <Typography sx={{ color: colors.gold, fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.08em" }}>
                 BEST
               </Typography>
-              <Typography variant="body1" sx={{ fontWeight: 900 }}>{maxScore}</Typography>
+              <Typography sx={{ fontSize: "1.3rem", fontWeight: 900 }}>{maxScore}</Typography>
             </Box>
-          </Box>
+          </Stack>
 
-          <Stack flexGrow={1} spacing={2} mt={2}>
+          <Stack spacing={2} sx={{ flexGrow: 1, mt: 2 }}>
             <Button
-              sx={{ p: 0, flex: 1, backgroundColor: "#000", borderRadius: "1rem" }}
+              disableRipple
+              sx={{
+                p: 0,
+                flex: 1,
+                borderRadius: 2,
+                overflow: "hidden",
+                bgcolor: colors.background,
+                "&:hover": { bgcolor: colors.background },
+                "&.Mui-disabled": { opacity: 1, bgcolor: colors.background },
+              }}
               onClick={() => onGuess(true)}
               disabled={hasPressed.current}
             >
               <HigherLowerPlayerCard
+                key={`first-${gameSession}-${currentMode?.title}`}
                 player={passedFirstPlayer}
                 correct={correctIndex === 0 || correctIndex === 2}
                 incorrect={correctIndex === 3}
+                frozen={gameOverModalVisible}
                 statRevealed={firstPlayerStatRevealed}
                 setStatRevealed={setFirstPlayerStatRevealed}
                 setCorrectIndex={setCorrectIndex}
               />
             </Button>
 
-            <Stack direction="row" alignItems="center" spacing={1}>
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
               <Divider sx={{ flex: 1, bgcolor: "grey.400" }} />
               {correctIndex > -1 ? (
                 correctIndex > 1 ? (
@@ -455,21 +523,32 @@ export default function PlayHigherLower() {
             </Stack>
 
             <Button
-              sx={{ p: 0, flex: 1, backgroundColor: "#000", borderRadius: "1rem" }}
+              disableRipple
+              sx={{
+                p: 0,
+                flex: 1,
+                borderRadius: 2,
+                overflow: "hidden",
+                bgcolor: colors.background,
+                "&:hover": { bgcolor: colors.background },
+                "&.Mui-disabled": { opacity: 1, bgcolor: colors.background },
+              }}
               onClick={() => onGuess(false)}
               disabled={hasPressed.current}
             >
               <HigherLowerPlayerCard
+                key={`second-${gameSession}-${currentMode?.title}`}
                 player={passedSecondPlayer}
                 correct={correctIndex === 1 || correctIndex === 3}
                 incorrect={correctIndex === 2}
+                frozen={gameOverModalVisible}
                 statRevealed={secondPlayerStatRevealed}
                 setStatRevealed={setSecondPlayerStatRevealed}
                 setCorrectIndex={setCorrectIndex}
               />
             </Button>
           </Stack>
-        </Box>
+        </Paper>
       </Container>
     </>
   );

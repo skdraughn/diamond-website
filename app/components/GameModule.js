@@ -1,14 +1,14 @@
 import Link from "next/link";
-import { Avatar, Box, Card, CardContent, Stack, Typography } from "@mui/material";
+import { Box, Card, CardContent, Stack, Typography } from "@mui/material";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import SportsBaseballRoundedIcon from "@mui/icons-material/SportsBaseballRounded";
-import GridOnRoundedIcon from "@mui/icons-material/GridOnRounded";
+import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
+import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import SwapVertRoundedIcon from "@mui/icons-material/SwapVertRounded";
 import { colors } from "../theme/colors";
 
 const iconMap = {
-  strikeout: SportsBaseballRoundedIcon,
-  reverse: GridOnRoundedIcon,
+  strikeout: GridViewRoundedIcon,
+  reverse: ShuffleRoundedIcon,
   higherlower: SwapVertRoundedIcon,
 };
 
@@ -17,7 +17,7 @@ function getStats(title, { streak, won, winPercent, maxScore }) {
   return [
     { label: "Streak", value: streak || 0 },
     { label: "Wins", value: won || 0 },
-    { label: "Win Rate", value: winPercent || "0%" },
+    { label: "Correct %", value: winPercent || "0%" },
   ];
 }
 
@@ -33,47 +33,47 @@ export default function GameModule({
   maxScore = 0,
 }) {
   const stats = getStats(title, { streak, won, winPercent, maxScore });
-  const Icon = iconMap[iconKey] || SportsBaseballRoundedIcon;
+  const Icon = iconMap[iconKey] || GridViewRoundedIcon;
 
   return (
     <Card
       component={Link}
       href={href}
       sx={{
+        display: "block",
         height: "100%",
-        borderRadius: 2.75,
+        borderRadius: 0,
         border: "none",
-        background: "rgba(16, 21, 17, 0.94)",
+        background: "transparent",
         color: colors.text,
         textDecoration: "none",
         overflow: "hidden",
-        boxShadow: "0 8px 20px rgba(0,0,0,0.24)",
-        transition: "transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease",
+        boxShadow: "none",
+        transition: "opacity 180ms ease",
         "&:hover": {
-          transform: "translateY(-3px)",
-          boxShadow: "0 12px 26px rgba(0,0,0,0.3)",
-          backgroundColor: "rgba(20, 28, 22, 0.98)",
+          opacity: 0.88,
         },
       }}
     >
-      <Box sx={{ height: 6, background: backgroundColor }} />
-      <CardContent sx={{ p: { xs: 1.5, md: 1.75 }, height: "100%" }}>
+      <CardContent sx={{ p: "0 !important", height: "100%" }}>
         <Stack spacing={1.15} sx={{ height: "100%" }}>
-          <Stack direction="row" spacing={1} alignItems="center">
-            <Avatar
+          <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+            <Box
               sx={{
-                width: { xs: 44, md: 48 },
-                height: { xs: 44, md: 48 },
-                borderRadius: 1.4,
-                bgcolor: "rgba(255,255,255,0.07)",
+                width: { xs: 46, md: 50 },
+                height: { xs: 46, md: 50 },
+                borderRadius: 1.6,
+                display: "grid",
+                placeItems: "center",
+                bgcolor: `${backgroundColor}18`,
                 color: backgroundColor,
+                border: `1px solid ${backgroundColor}55`,
               }}
-              variant="rounded"
             >
-              <Icon />
-            </Avatar>
+              <Icon sx={{ fontSize: 26 }} />
+            </Box>
             <Box sx={{ minWidth: 0, flex: 1 }}>
-              <Stack direction="row" spacing={0.35} alignItems="center">
+              <Stack direction="row" spacing={0.35} sx={{ alignItems: "center" }}>
                 <Typography
                   variant="h6"
                   sx={{ fontWeight: 800, lineHeight: 1.05, fontSize: { xs: "1rem", md: "1.05rem" } }}
@@ -97,7 +97,16 @@ export default function GameModule({
             </Box>
           </Stack>
 
-          <Box sx={{ mt: "auto", borderRadius: 1.35, bgcolor: "rgba(7, 9, 8, 0.78)", px: 0.45, py: 0.55 }}>
+          <Box
+            sx={{
+              mt: "auto",
+              borderRadius: 1.35,
+              bgcolor: "rgba(5,12,22,0.48)",
+              border: "1px solid rgba(220,235,255,0.08)",
+              px: 0.45,
+              py: 0.55,
+            }}
+          >
             <Box sx={{ display: "grid", gridTemplateColumns: `repeat(${stats.length}, minmax(0, 1fr))`, gap: 0.55 }}>
               {stats.map(({ label, value }) => (
                 <Box

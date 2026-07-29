@@ -5,6 +5,9 @@ import Image from "next/image";
 import {
   Box,
   Button,
+  Dialog,
+  DialogContent,
+  DialogTitle,
   Grid,
   IconButton,
   Modal,
@@ -22,6 +25,7 @@ import { getLocalISODate } from "../utils/date";
 import { colors } from "../theme/colors";
 import { divisionTeams } from "../utils/divisionTeams";
 import { teamLogoMap } from "@/utils/teamLogoMap";
+import { appLinks } from "@/utils/appLinks";
 
 const STORAGE_PREFIX = "diamond_ri_";
 
@@ -398,7 +402,28 @@ function TeamSelectModal({
   );
 }
 
-function ResultsModal({ visible, onClose, score, total, game, matchedRows, matchedCols, resetGame }) {
+function ResultsModal({
+  visible,
+  onClose,
+  score,
+  total,
+  game,
+  matchedRows,
+  matchedCols,
+  resetGame,
+  stats,
+}) {
+  const winPercent = stats?.played
+    ? Math.round(((stats.won || 0) / stats.played) * 100)
+    : 0;
+  const correctPercent = stats?.reverseImmaculateGamesTotalHeaders
+    ? Math.round(
+        ((stats.reverseImmaculateGamesCorrectHeaders || 0) /
+          stats.reverseImmaculateGamesTotalHeaders) *
+          100
+      )
+    : 0;
+
   const handleShare = async () => {
     const solvedRows = Array(3)
       .fill(null)
@@ -408,50 +433,152 @@ function ResultsModal({ visible, onClose, score, total, game, matchedRows, match
       .fill(null)
       .map((_, i) => (matchedCols.includes(i) ? "🟩" : "🟥"))
       .join("");
-    const msg = `Diamond Trivia Reverse Immaculate ${game?.date}\nRows: ${solvedRows}\nCols: ${solvedCols}\nScore: ${score}/${total}`;
+    const msg = `Diamond Trivia Reverse Immaculate ${game?.date}\nRows: ${solvedRows}\nCols: ${solvedCols}\nScore: ${score}/${total}\n\n${appLinks.appStore}`;
 
-    if (navigator.share) await navigator.share({ text: msg });
-    else {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "Diamond Trivia", text: msg });
+      } catch {
+        await navigator.clipboard?.writeText(msg);
+      }
+    } else {
       await navigator.clipboard.writeText(msg);
       alert("Copied to clipboard!");
     }
   };
 
   return (
-    <Modal open={visible} onClose={onClose}>
-      <Box
+    <Dialog
+      open={visible}
+      onClose={onClose}
+      maxWidth="xs"
+      fullWidth
+      slotProps={{
+        backdrop: {
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.78)",
+            backdropFilter: "blur(4px)",
+          },
+        },
+        paper: {
+          sx: {
+            backgroundColor: colors.background,
+            backgroundImage: "none",
+            border: `1px solid ${colors.border}`,
+            borderRadius: 3,
+            boxShadow: "0 24px 80px rgba(0,0,0,0.62)",
+            overflow: "hidden",
+          },
+        },
+      }}
+    >
+      <DialogTitle
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          bgcolor: colors.backgroundHighlight,
-          borderRadius: 2,
-          border: `1px solid ${colors.border}`,
-          p: 3,
-          width: "min(92vw, 420px)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 2,
+          pb: 1,
         }}
       >
         <Typography
-          variant="h5"
-          sx={{ color: score === total ? colors.grass : colors.primary, fontWeight: 900, mb: 1 }}
+          component="span"
+          variant="h6"
+          sx={{
+            color: score === total ? colors.gold : colors.strikeout,
+            fontWeight: 900,
+          }}
         >
           {score === total ? "You Won!" : "You Lost"}
         </Typography>
-        <Typography sx={{ color: colors.secondaryText, mb: 2 }}>
+        <IconButton onClick={onClose} aria-label="Close game result">
+          <CloseIcon sx={{ color: colors.text }} />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent sx={{ pt: "4px !important", pb: 3 }}>
+        <Typography sx={{ color: colors.text, mb: 2.5 }}>
           You got {matchedRows.length}/3 rows and {matchedCols.length}/3 columns correct.
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap" }}>
-          <Button onClick={handleShare}>Share</Button>
-          <Button variant="outlined" onClick={resetGame}>
+
+        <Box
+          sx={{
+            p: 2,
+            mb: 2.5,
+            borderRadius: 2,
+            border: `1px solid ${colors.border}`,
+            backgroundColor: colors.backgroundHighlight,
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{ color: colors.secondaryText, fontWeight: 800, mb: 1.5 }}
+          >
+            Your Stats
+          </Typography>
+          <Grid container spacing={1.5}>
+            {[
+              { label: "Played", value: stats?.played || 0, size: 3 },
+              { label: "Win %", value: `${winPercent}%`, size: 3 },
+              { label: "Win Streak", value: stats?.streak || 0, size: 3 },
+              { label: "Max Streak", value: stats?.maxStreak || 0, size: 3 },
+              {
+                label: "Total Correct Headers",
+                value: stats?.reverseImmaculateGamesCorrectHeaders || 0,
+                size: 6,
+              },
+              { label: "Correct %", value: `${correctPercent}%`, size: 6 },
+            ].map((item) => (
+              <Grid key={item.label} size={item.size} sx={{ textAlign: "center" }}>
+                <Typography variant="h6" sx={{ color: colors.text, fontWeight: 900 }}>
+                  {item.value}
+                </Typography>
+                <Typography variant="caption" sx={{ color: colors.secondaryText }}>
+                  {item.label}
+                </Typography>
+              </Grid>
+            ))}
+          </Grid>
+        </Box>
+
+        <Box
+          sx={{
+            p: 2,
+            mb: 2.5,
+            borderRadius: 2,
+            border: `1px solid ${colors.primary}70`,
+            background:
+              "linear-gradient(140deg, rgba(19,114,74,0.34), rgba(14,34,56,0.95))",
+          }}
+        >
+          <Typography sx={{ color: colors.text, fontWeight: 900 }}>
+            More baseball trivia is waiting in the app
+          </Typography>
+          <Typography variant="body2" sx={{ color: colors.secondaryText, mt: 0.5, mb: 1.5 }}>
+            Play collections, climb leaderboards, and compete with other MLB fans.
+          </Typography>
+          <Button
+            component="a"
+            href={appLinks.appStore}
+            target="_blank"
+            rel="noopener noreferrer"
+            size="small"
+          >
+            Download Diamond Trivia
+          </Button>
+        </Box>
+
+        <Stack direction="row" spacing={1.25}>
+          <Button fullWidth variant="outlined" onClick={resetGame}>
             Try Again
           </Button>
-          <Button variant="text" onClick={onClose}>
-            Review
-          </Button>
+          <Button fullWidth onClick={handleShare}>Share</Button>
         </Stack>
-      </Box>
-    </Modal>
+        <Button fullWidth onClick={onClose} variant="text" sx={{ mt: 1.25 }}>
+          Review Board
+        </Button>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -465,6 +592,7 @@ export default function PlayReverseImmaculate() {
   const [resultsModalVisible, setResultsModalVisible] = useState(false);
   const [resultsDismissed, setResultsDismissed] = useState(false);
   const [answersShown, setAnswersShown] = useState(false);
+  const [resultStats, setResultStats] = useState(null);
   const [state, setState] = useState({
     rowGuesses: [],
     colGuesses: [],
@@ -492,7 +620,27 @@ export default function PlayReverseImmaculate() {
     const id = window.setTimeout(() => {
       setState(nextState);
       recordedRef.current = Boolean(stored?.completed);
+      try {
+        const rawStats = JSON.parse(localStorage.getItem("diamond_ri_stats") || "{}");
+        const inferredPlayed =
+          rawStats.played ||
+          Math.floor(
+            (rawStats.reverseImmaculateGamesTotalHeaders || 0) /
+              Math.max(
+                1,
+                (game.rowTeams?.length || 0) + (game.colTeams?.length || 0)
+              )
+          );
+        setResultStats({
+          ...rawStats,
+          played: inferredPlayed,
+          maxStreak: rawStats.maxStreak || rawStats.streak || 0,
+        });
+      } catch {
+        setResultStats(null);
+      }
       setResultsDismissed(false);
+      setResultsModalVisible(Boolean(stored?.completed));
     }, 0);
     return () => window.clearTimeout(id);
   }, [game]);
@@ -506,17 +654,28 @@ export default function PlayReverseImmaculate() {
       const won = finalState.score === totalTeams;
       const raw = localStorage.getItem("diamond_ri_stats");
       const previous = raw ? JSON.parse(raw) : {};
+      const previousPlayed =
+        previous.played ||
+        Math.floor(
+          (previous.reverseImmaculateGamesTotalHeaders || 0) /
+            Math.max(1, totalTeams)
+        );
+      const nextStreak = won ? (previous.streak || 0) + 1 : 0;
+      const nextStats = {
+        played: previousPlayed + 1,
+        streak: nextStreak,
+        maxStreak: Math.max(previous.maxStreak || previous.streak || 0, nextStreak),
+        won: (previous.won || 0) + (won ? 1 : 0),
+        reverseImmaculateGamesCorrectHeaders:
+          (previous.reverseImmaculateGamesCorrectHeaders || 0) + finalState.score,
+        reverseImmaculateGamesTotalHeaders:
+          (previous.reverseImmaculateGamesTotalHeaders || 0) + totalTeams,
+      };
       localStorage.setItem(
         "diamond_ri_stats",
-        JSON.stringify({
-          streak: won ? (previous.streak || 0) + 1 : 0,
-          won: (previous.won || 0) + (won ? 1 : 0),
-          reverseImmaculateGamesCorrectHeaders:
-            (previous.reverseImmaculateGamesCorrectHeaders || 0) + finalState.score,
-          reverseImmaculateGamesTotalHeaders:
-            (previous.reverseImmaculateGamesTotalHeaders || 0) + totalTeams,
-        })
+        JSON.stringify(nextStats)
       );
+      setResultStats(nextStats);
       window.dispatchEvent(new Event("diamond-stats-updated"));
       recordedRef.current = true;
     },
@@ -630,9 +789,14 @@ export default function PlayReverseImmaculate() {
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <Typography sx={{ fontWeight: 900, color: colors.gold, fontSize: isMobile ? 20 : 28 }}>
-              RI
-            </Typography>
+            <Image
+              src="/diamond-app-icon-v2.webp"
+              alt="Diamond Trivia"
+              width={isMobile ? 48 : 72}
+              height={isMobile ? 48 : 72}
+              style={{ borderRadius: "18%", objectFit: "cover" }}
+              priority
+            />
           </Box>
 
           {game.colTeams.map((teamID, index) => (
@@ -792,6 +956,7 @@ export default function PlayReverseImmaculate() {
         matchedRows={state.matchedRows}
         matchedCols={state.matchedCols}
         resetGame={resetGame}
+        stats={resultStats}
       />
     </>
   );

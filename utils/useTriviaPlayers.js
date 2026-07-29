@@ -10,7 +10,7 @@ import {
 const BASE_URL =
   "https://diamondtrivia-public-bucket.s3.us-east-1.amazonaws.com/data";
 
-const BASIC_FALLBACK_KEY = "players_basic_1.json";
+const BASIC_FALLBACK_KEY = "players_2026_04_09.json";
 const PLAYERS_CACHE_KEY = "trivia_players_cache";
 const PLAYERS_METADATA_KEY = "trivia_players_metadata";
 const PLAYERS_FILE_ENV_OVERRIDE =

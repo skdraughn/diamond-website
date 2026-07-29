@@ -80,6 +80,21 @@
       "service": "Cognito"
     }
   },
+  "custom": {
+    "achievementspipeline": {
+      "dependsOn": [
+        {
+          "attributes": [
+            "GraphQLAPIIdOutput"
+          ],
+          "category": "api",
+          "resourceName": "mockdraft"
+        }
+      ],
+      "providerPlugin": "awscloudformation",
+      "service": "customCloudformation"
+    }
+  },
   "function": {
     "socialauthnative": {
       "build": true,

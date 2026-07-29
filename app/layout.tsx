@@ -22,12 +22,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Diamond Trivia | Daily MLB Trivia Games",
   description:
-    "Play daily MLB trivia games like Guess the Player, Strikeout, Connections, and Griddle. Test your baseball knowledge and build your streak. Available on the App Store!",
+    "Play daily MLB trivia games including Strikeout, Reverse Immaculate, and Higher Lower. Test your baseball knowledge and build your streak.",
   openGraph: {
     ...openGraphImage,
     title: "Diamond Trivia | Daily MLB Trivia Games",
     description:
-      "Test your MLB knowledge with daily trivia games like Strikeout and Griddle. Available on the App Store!",
+      "Test your MLB knowledge with Strikeout, Reverse Immaculate, and Higher Lower.",
     url: "https://www.diamondtrivia.app",
     siteName: "Diamond Trivia",
     type: "website",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Diamond Trivia",
     description:
-      "Play daily MLB trivia. Challenge your baseball brain with Strikeout and Griddle.",
+      "Play daily MLB trivia with Strikeout, Reverse Immaculate, and Higher Lower.",
   },
   metadataBase: new URL("https://www.diamondtrivia.app"),
 };
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#070908",
+  themeColor: "#071220",
 };
 
 export default function RootLayout({

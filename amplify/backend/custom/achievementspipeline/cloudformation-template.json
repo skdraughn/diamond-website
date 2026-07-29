@@ -1,0 +1,361 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{\"createdOn\":\"Mac\",\"createdBy\":\"Amplify\",\"createdWith\":\"12.14.4\",\"stackType\":\"custom-customCloudformation\",\"metadata\":{\"whyContinueWithGen1\":\"\"}}",
+  "Parameters": {
+    "env": {
+      "Type": "String"
+    },
+    "apimockdraftGraphQLAPIIdOutput": {
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "AchievementFinalizerRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "AchievementFinalizerDynamoPolicy",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "dynamodb:Query",
+                    "dynamodb:PutItem"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/DailyGameLeaderboardEntry-${apimockdraftGraphQLAPIIdOutput}-${env}"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/DailyGameLeaderboardEntry-${apimockdraftGraphQLAPIIdOutput}-${env}/index/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/WeeklyGridironLeaderboardEntry-${apimockdraftGraphQLAPIIdOutput}-${env}"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/WeeklyGridironLeaderboardEntry-${apimockdraftGraphQLAPIIdOutput}-${env}/index/*"
+                    },
+                    {
+                      "Fn::Sub": "arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/UserAchievement-${apimockdraftGraphQLAPIIdOutput}-${env}"
+                    }
+                  ]
+                },
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:CreateLogGroup",
+                    "logs:CreateLogStream",
+                    "logs:PutLogEvents"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "AchievementFinalizerFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Properties": {
+        "Runtime": "python3.12",
+        "Handler": "index.handler",
+        "Timeout": 120,
+        "MemorySize": 256,
+        "Role": {
+          "Fn::GetAtt": [
+            "AchievementFinalizerRole",
+            "Arn"
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "API_ID": {
+              "Ref": "apimockdraftGraphQLAPIIdOutput"
+            },
+            "ENV_NAME": {
+              "Ref": "env"
+            }
+          }
+        },
+        "Code": {
+          "ZipFile": {
+            "Fn::Join": [
+              "\n",
+              [
+                "import os",
+                "from datetime import datetime, timedelta, timezone",
+                "from zoneinfo import ZoneInfo",
+                "import boto3",
+                "from botocore.exceptions import ClientError",
+                "",
+                "ddb = boto3.client('dynamodb')",
+                "API_ID = os.environ['API_ID']",
+                "ENV_NAME = os.environ['ENV_NAME']",
+                "DAILY_TABLE = f'DailyGameLeaderboardEntry-{API_ID}-{ENV_NAME}'",
+                "WEEKLY_TABLE = f'WeeklyGridironLeaderboardEntry-{API_ID}-{ENV_NAME}'",
+                "ACH_TABLE = f'UserAchievement-{API_ID}-{ENV_NAME}'",
+                "ET = ZoneInfo('America/New_York')",
+                "DAILY_GAMES = ['REDZONE', 'REVERSE_IMMACULATE', 'STAT_STACK', 'HIGHER_LOWER']",
+                "",
+                "def _n(attr, default=0):",
+                "    try: return int(float((attr or {}).get('N', default)))",
+                "    except Exception: return default",
+                "",
+                "def _s(attr, default=''):",
+                "    return (attr or {}).get('S', default)",
+                "",
+                "def _query_all(table, scope_key):",
+                "    items, token = [], None",
+                "    while True:",
+                "        args = {'TableName': table, 'IndexName': 'byScopeAndRank', 'KeyConditionExpression': 'scopeKey = :scope', 'ExpressionAttributeValues': {':scope': {'S': scope_key}}, 'ScanIndexForward': True}",
+                "        if token: args['ExclusiveStartKey'] = token",
+                "        response = ddb.query(**args)",
+                "        items.extend(response.get('Items', []))",
+                "        token = response.get('LastEvaluatedKey')",
+                "        if not token: return items",
+                "",
+                "def _period_ms(scope, period_key):",
+                "    try:",
+                "        if scope == 'WEEKLY':",
+                "            year, week = int(period_key[:4]), int(period_key[6:8])",
+                "            value = datetime.fromisocalendar(year, week, 1).replace(tzinfo=timezone.utc)",
+                "        else:",
+                "            value = datetime.strptime(period_key, '%Y-%m-%d').replace(tzinfo=timezone.utc)",
+                "        return int(value.timestamp() * 1000)",
+                "    except Exception: return 0",
+                "",
+                "def _weight(scope, tier):",
+                "    if scope == 'WEEKLY': return {'WINNER': 10, 'TOP_5': 20, 'TOP_10': 30}.get(tier, 999)",
+                "    return {'WINNER': 40, 'TOP_3': 50, 'TOP_5': 60}.get(tier, 999)",
+                "",
+                "def _put(user_id, username, scope, tier, game_type, period_key, label, rank, primary, tiebreak):",
+                "    achievement_key = f'{user_id}#{scope}#{game_type}#{period_key}#{tier}'",
+                "    inverse_ms = 9999999999999 - _period_ms(scope, period_key)",
+                "    display = f'{_weight(scope, tier):03d}#{inverse_ms:013d}#{game_type}#{user_id}'",
+                "    now = datetime.now(timezone.utc).isoformat()",
+                "    pending = f'{inverse_ms:013d}#{_weight(scope, tier):03d}#{game_type}#{achievement_key}'",
+                "    item = {'id': {'S': achievement_key}, 'achievementKey': {'S': achievement_key}, 'userID': {'S': user_id}, 'username': {'S': username}, 'scope': {'S': scope}, 'tier': {'S': tier}, 'gameType': {'S': game_type}, 'periodKey': {'S': period_key}, 'labelDate': {'S': label}, 'rank': {'N': str(rank)}, 'primaryValue': {'N': str(primary)}, 'tiebreakMs': {'N': str(tiebreak)}, 'displaySortKey': {'S': display}, 'pendingUserID': {'S': user_id}, 'pendingSortKey': {'S': pending}, 'createdAt': {'S': now}, 'updatedAt': {'S': now}}",
+                "    try:",
+                "        ddb.put_item(TableName=ACH_TABLE, Item=item, ConditionExpression='attribute_not_exists(id)')",
+                "        return 1",
+                "    except ClientError as exc:",
+                "        if exc.response.get('Error', {}).get('Code') == 'ConditionalCheckFailedException': return 0",
+                "        raise",
+                "",
+                "def _daily(now_utc):",
+                "    now_et = now_utc.astimezone(ET)",
+                "    if now_et.hour != 0: return {'mode': 'daily', 'skipped': 'outside Eastern midnight'}",
+                "    period = (now_et.date() - timedelta(days=1)).isoformat()",
+                "    label = datetime.strptime(period, '%Y-%m-%d').strftime('%b %d, %Y')",
+                "    created = 0",
+                "    for game_type in DAILY_GAMES:",
+                "        previous_primary = previous_tb = previous_rank = None",
+                "        for index, row in enumerate(_query_all(DAILY_TABLE, f'{game_type}#{period}'), start=1):",
+                "            primary = _n(row.get('primaryValue'))",
+                "            tiebreak = _n(row.get('tiebreakMs'), _n(row.get('completionTime')))",
+                "            tied = primary == previous_primary and (game_type == 'HIGHER_LOWER' or tiebreak == previous_tb)",
+                "            rank = previous_rank if index > 1 and tied else index",
+                "            previous_primary, previous_tb, previous_rank = primary, tiebreak, rank",
+                "            tiers = ([] if rank > 5 else ['TOP_5']) + ([] if rank > 3 else ['TOP_3']) + ([] if rank != 1 else ['WINNER'])",
+                "            for tier in tiers:",
+                "                created += _put(_s(row.get('userID')), _s(row.get('username')), 'DAILY', tier, game_type, period, label, rank, primary, tiebreak)",
+                "    return {'mode': 'daily', 'periodKey': period, 'created': created}",
+                "",
+                "def _weekly(now_utc):",
+                "    now_et = now_utc.astimezone(ET)",
+                "    if now_et.weekday() != 0 or now_et.hour != 0: return {'mode': 'weekly', 'skipped': 'outside Eastern Monday midnight'}",
+                "    target = now_et.date() - timedelta(days=1)",
+                "    week_start = target - timedelta(days=target.weekday())",
+                "    iso = week_start.isocalendar()",
+                "    period = f'{iso.year}-W{iso.week:02d}'",
+                "    label = 'Week of ' + week_start.strftime('%b %-d, %Y')",
+                "    created, previous_total, previous_rank = 0, None, None",
+                "    for index, row in enumerate(_query_all(WEEKLY_TABLE, period), start=1):",
+                "        total = _n(row.get('totalGridiron'))",
+                "        rank = previous_rank if index > 1 and total == previous_total else index",
+                "        previous_total, previous_rank = total, rank",
+                "        tiers = ([] if rank > 10 else ['TOP_10']) + ([] if rank > 5 else ['TOP_5']) + ([] if rank != 1 else ['WINNER'])",
+                "        for tier in tiers:",
+                "            created += _put(_s(row.get('userID')), _s(row.get('username')), 'WEEKLY', tier, 'WEEKLY_DIAMOND', period, label, rank, total, 0)",
+                "    return {'mode': 'weekly', 'periodKey': period, 'created': created}",
+                "",
+                "def handler(event, context):",
+                "    now = datetime.now(timezone.utc)",
+                "    result = _weekly(now) if (event or {}).get('mode') == 'weekly' else _daily(now)",
+                "    print(result)",
+                "    return result"
+              ]
+            ]
+          }
+        }
+      }
+    },
+    "DailyFinalizerRulePDT": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(10 4 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "AchievementFinalizerFunction",
+                "Arn"
+              ]
+            },
+            "Id": "DailyFinalizerPDT",
+            "Input": "{\"mode\":\"daily\"}"
+          }
+        ]
+      }
+    },
+    "DailyFinalizerRulePST": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(10 5 * * ? *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "AchievementFinalizerFunction",
+                "Arn"
+              ]
+            },
+            "Id": "DailyFinalizerPST",
+            "Input": "{\"mode\":\"daily\"}"
+          }
+        ]
+      }
+    },
+    "WeeklyFinalizerRuleEDT": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(20 4 ? * MON *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "AchievementFinalizerFunction",
+                "Arn"
+              ]
+            },
+            "Id": "WeeklyFinalizerEDT",
+            "Input": "{\"mode\":\"weekly\"}"
+          }
+        ]
+      }
+    },
+    "WeeklyFinalizerRuleEST": {
+      "Type": "AWS::Events::Rule",
+      "Properties": {
+        "ScheduleExpression": "cron(20 5 ? * MON *)",
+        "State": "ENABLED",
+        "Targets": [
+          {
+            "Arn": {
+              "Fn::GetAtt": [
+                "AchievementFinalizerFunction",
+                "Arn"
+              ]
+            },
+            "Id": "WeeklyFinalizerEST",
+            "Input": "{\"mode\":\"weekly\"}"
+          }
+        ]
+      }
+    },
+    "DailyInvokePermissionPDT": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "AchievementFinalizerFunction"
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "DailyFinalizerRulePDT",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "DailyInvokePermissionPST": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "AchievementFinalizerFunction"
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "DailyFinalizerRulePST",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "WeeklyInvokePermissionEDT": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "AchievementFinalizerFunction"
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "WeeklyFinalizerRuleEDT",
+            "Arn"
+          ]
+        }
+      }
+    },
+    "WeeklyInvokePermissionEST": {
+      "Type": "AWS::Lambda::Permission",
+      "Properties": {
+        "Action": "lambda:InvokeFunction",
+        "FunctionName": {
+          "Ref": "AchievementFinalizerFunction"
+        },
+        "Principal": "events.amazonaws.com",
+        "SourceArn": {
+          "Fn::GetAtt": [
+            "WeeklyFinalizerRuleEST",
+            "Arn"
+          ]
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "AchievementFinalizerFunctionName": {
+      "Value": {
+        "Ref": "AchievementFinalizerFunction"
+      }
+    }
+  }
+}

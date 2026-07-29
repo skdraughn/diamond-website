@@ -30,6 +30,11 @@ export type AmplifyDependentResourcesAttributes = {
       "UserPoolName": "string"
     }
   },
+  "custom": {
+    "achievementspipeline": {
+      "AchievementFinalizerFunctionName": "string"
+    }
+  },
   "function": {
     "socialauthnative": {
       "Arn": "string",

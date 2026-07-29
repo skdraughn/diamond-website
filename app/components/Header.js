@@ -14,6 +14,7 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
+import Image from "next/image";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { colors } from "../theme/colors";
@@ -72,8 +73,8 @@ export default function Header() {
         elevation={0}
         sx={{
           py: { xs: 0.75, md: 1 },
-          backgroundColor: "rgba(7,9,8,0.72)",
-          backdropFilter: "blur(14px)",
+          backgroundColor: "rgba(7,18,32,0.82)",
+          backdropFilter: "blur(18px)",
           borderBottom: `1px solid ${colors.border}`,
         }}
       >
@@ -88,17 +89,28 @@ export default function Header() {
             }}
           >
             <Link href="/" aria-label="Go to homepage">
-              <Typography
-                variant="h6"
-                sx={{
-                  fontSize: { xs: "1rem", md: "1.2rem" },
-                  fontWeight: 800,
-                  lineHeight: 1,
-                  whiteSpace: "nowrap",
-                }}
-              >
-                Diamond Trivia
-              </Typography>
+              <Stack direction="row" spacing={1.1} sx={{ alignItems: "center" }}>
+                <Image
+                  src="/diamond-app-icon-v2.webp"
+                  width={40}
+                  height={40}
+                  alt="Diamond Trivia"
+                  style={{ borderRadius: 10, objectFit: "contain" }}
+                />
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontSize: { xs: "1rem", md: "1.2rem" },
+                    fontWeight: 800,
+                    lineHeight: 1,
+                    whiteSpace: "nowrap",
+                    color: colors.chalk,
+                    display: { xs: "none", sm: "block" },
+                  }}
+                >
+                  Diamond Trivia
+                </Typography>
+              </Stack>
             </Link>
 
             <Stack
@@ -145,9 +157,18 @@ export default function Header() {
         anchor="right"
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
-        PaperProps={{ sx: { width: 300, p: 2.5, background: colors.surface } }}
+        slotProps={{
+          paper: {
+            sx: {
+              width: 290,
+              p: 2.5,
+              background: "linear-gradient(160deg, #0e2238, #071220 70%)",
+              borderLeft: `1px solid ${colors.primary}55`,
+            },
+          },
+        }}
       >
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 800 }}>
+        <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
           Menu
         </Typography>
         <Stack spacing={2}>
@@ -161,16 +182,22 @@ export default function Header() {
             />
           ))}
         </Stack>
-        <Button
-          component="a"
-          href={storeLink.href}
-          target="_blank"
-          rel="noopener noreferrer"
-          endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
-          sx={{ mt: 3 }}
-        >
-          {storeLink.label}
-        </Button>
+        <Stack spacing={1.25} sx={{ mt: 2.5 }}>
+          <Button
+            component="a"
+            href={storeLink.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
+            sx={{
+              bgcolor: colors.text,
+              color: colors.background,
+              "&:hover": { bgcolor: "#ded8ce" },
+            }}
+          >
+            {storeLink.label}
+          </Button>
+        </Stack>
       </Drawer>
     </>
   );

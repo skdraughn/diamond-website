@@ -296,6 +296,86 @@ type RedZoneGame
   adLocked: Boolean
 }
 
+type StatStackConstraint {
+  key: String!
+  label: String!
+  value: String!
+  scope: String
+  teamKeys: [String]
+  logoKeys: [String]
+  exclude: Boolean
+}
+
+type StatStackRow {
+  id: ID!
+  constraints: [StatStackConstraint!]!
+  validAnswerCount: Int!
+}
+
+type StatStackPick {
+  rowID: ID!
+  playerID: ID!
+  playerName: String!
+  season: Int!
+  teamKey: String
+  teamName: String
+  logoKey: String
+  statValue: Float!
+  percentileTenths: Int!
+}
+
+type StatStackGame
+  @model
+  @auth(
+    rules: [
+      { allow: public, operations: [read] }
+      { allow: private, provider: userPools, operations: [read] }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  date: AWSDate! @index(name: "byDate")
+  type: String @index(name: "byType", sortKeyFields: ["date"])
+  collectionID: ID
+  featuredStatKey: String!
+  featuredStatLabel: String!
+  featuredStatUnit: String
+  featuredStatPrecision: Int
+  rows: [StatStackRow!]!
+  payloadURL: AWSURL!
+  payloadChecksum: String!
+  payloadSchemaVersion: Int!
+  attempts: Int
+  adLocked: Boolean
+}
+
+type UserStatStackGame
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, read, update]
+        identityClaim: "sub"
+        ownerField: "userID"
+      }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser")
+  gameID: ID!
+  picks: [StatStackPick]
+  completed: Boolean
+  scoreTenths: Int
+  totalStatValue: Float
+  completionTime: Int
+  attempts: Int
+  shownAnswers: Boolean
+  gridironEarned: Int
+  coinsEarned: Int
+}
+
 type RedZoneCell {
   hint: String
   team: ID #getting sunset for the teamsHidden Prop on RedZone, now every cell will have a team, the teamHidden prop will just determine whether to display it
@@ -500,6 +580,7 @@ type UserReverseImmaculateGame
   coinsEarned: Int
   attempts: Int
   shownAnswers: Boolean
+  completionTime: Int
 }
 
 type WeeklyGridironLeaderboardEntry
@@ -524,6 +605,89 @@ type WeeklyGridironLeaderboardEntry
   weekET: String!
   totalGridiron: Int!
   rankSortKey: String!
+}
+
+type DailyGameLeaderboardEntry
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [create, read, update] }
+      { allow: private, provider: identityPool, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  scopeKey: String! @index(name: "byScopeAndRank", sortKeyFields: ["rankSortKey"])
+  userScopeKey: String
+    @index(name: "byUserScope", sortKeyFields: ["rankSortKey"])
+  userID: ID! @index(name: "byUser")
+  username: String
+  gridiron: Int
+  gameType: TriviaGameType!
+  dateET: AWSDate!
+  gameID: ID
+  didWin: Boolean
+  attempts: Int
+  completionTime: Int
+  primaryValue: Int
+  tiebreakMs: Int
+  rankSortKey: String!
+}
+
+enum AchievementScope {
+  DAILY
+  WEEKLY
+}
+
+enum AchievementTier {
+  TOP_10
+  TOP_5
+  TOP_3
+  WINNER
+}
+
+enum AchievementGameType {
+  REDZONE
+  REVERSE_IMMACULATE
+  HIGHER_LOWER
+  STAT_STACK
+  WEEKLY_DIAMOND
+}
+
+type UserAchievement
+  @model
+  @auth(
+    rules: [
+      { allow: private, provider: userPools, operations: [read, update] }
+      { allow: private, provider: identityPool, operations: [read] }
+      {
+        allow: groups
+        groups: ["admin_full_access"]
+        operations: [create, read, update, delete]
+      }
+    ]
+  ) {
+  id: ID!
+  achievementKey: String
+  userID: ID! @index(name: "byUserAndDisplay", sortKeyFields: ["displaySortKey"])
+  username: String
+  scope: AchievementScope!
+  tier: AchievementTier!
+  gameType: AchievementGameType!
+  periodKey: String!
+  labelDate: String
+  rank: Int
+  primaryValue: Int
+  tiebreakMs: Int
+  notifiedAt: AWSDateTime
+  displaySortKey: String!
+  pendingUserID: ID
+    @index(name: "byPendingNotification", sortKeyFields: ["pendingSortKey"])
+  pendingSortKey: String
 }
 
 type Season
@@ -553,6 +717,7 @@ enum TriviaGameType {
   REVERSE_IMMACULATE
   HIGHER_LOWER
   CONNECTIONS
+  STAT_STACK
 }
 
 # 2) League model
@@ -1000,6 +1165,12 @@ type User
   guessTheNFLSeasonsScore: Int
   connectionsGamesPlayed: Int
   connectionsGamesWon: Int
+  statStackGamesPlayed: Int
+  statStackTotalScoreTenths: Int
+  statStackBestScoreTenths: Int
+  statStackScoreDistribution: [Int]
+  statStackCurrentStreak: Int
+  statStackLongestStreak: Int
   maxConnectionsStreak: Int
   currentConnectionsStreak: Int
   gridiron: Int
@@ -1129,6 +1300,7 @@ enum CollectionType {
   GTP
   REVERSE_IMMACULATE
   GTS
+  STAT_STACK
 }
 
 type CollectionItem {

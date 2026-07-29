@@ -45,7 +45,11 @@ function pickIndexWithRecencyBias(arr, indices, score) {
     : mid[Math.floor(Math.random() * mid.length)];
 }
 
-export default function useHigherLowerGame(markComplete) {
+function getPlayerKey(player) {
+  return player?.id || player?.playerID || player?.name || player?.n || null;
+}
+
+export default function useHigherLowerGame(markComplete, onBeforeModeChange) {
   const {
     higherLowerPlayers,
     loading: playersLoading,
@@ -62,9 +66,12 @@ export default function useHigherLowerGame(markComplete) {
   const [secondTs, setSecondTs] = useState(Date.now());
   const [score, setScore] = useState(0);
   const [correctIndex, setCorrectIndex] = useState(-1);
+  const [modeTransitioning, setModeTransitioning] = useState(false);
   const [gameError, setGameError] = useState(null);
 
   const modeQueue = useRef([]);
+  const lastModeChangeScore = useRef(null);
+  const modeChangeTimeout = useRef(null);
   const eligibleByMode = useRef({});
 
   const getVal = useCallback((player, currentMode) => {
@@ -88,7 +95,7 @@ export default function useHigherLowerGame(markComplete) {
   }, []);
 
   const pickInitialPair = useCallback(
-    (nextMode) => {
+    (nextMode, excludedPlayers = []) => {
       const arr = eligibleByMode.current[nextMode?.title] || [];
       if (arr.length < 2) {
         setFirstIdx(null);
@@ -97,7 +104,13 @@ export default function useHigherLowerGame(markComplete) {
         return;
       }
 
-      const allIdx = Array.from(arr.keys());
+      const excludedKeys = new Set(
+        excludedPlayers.map(getPlayerKey).filter(Boolean)
+      );
+      const freshIdx = Array.from(arr.keys()).filter(
+        (index) => !excludedKeys.has(getPlayerKey(arr[index]))
+      );
+      const allIdx = freshIdx.length >= 2 ? freshIdx : Array.from(arr.keys());
       let i;
       let j;
       let v1;
@@ -182,10 +195,21 @@ export default function useHigherLowerGame(markComplete) {
   ]);
 
   useEffect(() => {
-    if (score > 0 && score % interval === 0) {
-      pickNextMode();
+    if (
+      score > 0 &&
+      score % interval === 0 &&
+      lastModeChangeScore.current !== score
+    ) {
+      lastModeChangeScore.current = score;
+      modeChangeTimeout.current = window.setTimeout(() => {
+        onBeforeModeChange?.();
+        pickNextMode();
+        setModeTransitioning(false);
+      }, 1400);
     }
-  }, [pickNextMode, score]);
+
+    return () => window.clearTimeout(modeChangeTimeout.current);
+  }, [onBeforeModeChange, pickNextMode, score]);
 
   const changePlayer = useCallback(() => {
     if (!mode || firstIdx == null || secondIdx == null) return;
@@ -251,25 +275,46 @@ export default function useHigherLowerGame(markComplete) {
         return;
       }
 
+      const nextScore = score + 1;
       setCorrectIndex(isFirstHigher ? 0 : 1);
-      setScore((s) => s + 1);
-      changePlayer();
+      setScore(nextScore);
+      if (nextScore % interval === 0) {
+        setModeTransitioning(true);
+      } else {
+        changePlayer();
+      }
     },
-    [changePlayer, firstIdx, getVal, markComplete, mode, secondIdx]
+    [changePlayer, firstIdx, getVal, markComplete, mode, score, secondIdx]
   );
 
   const resetGame = useCallback(() => {
+    const currentPlayers =
+      mode && eligibleByMode.current[mode.title]
+        ? [
+            eligibleByMode.current[mode.title][firstIdx],
+            eligibleByMode.current[mode.title][secondIdx],
+          ]
+        : [];
+
     setScore(0);
+    window.clearTimeout(modeChangeTimeout.current);
+    setModeTransitioning(false);
+    lastModeChangeScore.current = null;
     setCorrectIndex(-1);
     setFirstIdx(null);
     setSecondIdx(null);
     setFirstTs(Date.now());
     setSecondTs(Date.now());
     setGameError(null);
-    setMode(null);
     resetModeQueue();
-    pickNextMode();
-  }, [pickNextMode, resetModeQueue]);
+    const nextTitle =
+      modeQueue.current.find((title) => title !== mode?.title) ||
+      modeQueue.current[0];
+    modeQueue.current = modeQueue.current.filter((title) => title !== nextTitle);
+    const nextMode = higherLowerGameModes.find((item) => item.title === nextTitle);
+    setMode(nextMode);
+    pickInitialPair(nextMode, currentPlayers);
+  }, [firstIdx, mode, pickInitialPair, resetModeQueue, secondIdx]);
 
   return {
     loading: playersLoading,
@@ -282,6 +327,7 @@ export default function useHigherLowerGame(markComplete) {
     selectedFileName,
     refreshPlayers,
     score,
+    modeTransitioning,
     currentMode: mode,
     firstPlayer:
       (mode && eligibleByMode.current[mode.title]?.[firstIdx]) || null,

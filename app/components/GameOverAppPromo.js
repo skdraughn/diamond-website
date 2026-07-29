@@ -4,6 +4,7 @@ import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { Box, Button, Typography } from "@mui/material";
 import { colors } from "../theme/colors";
 import { getPreferredStoreLink } from "../utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
 export default function GameOverAppPromo() {
   const store = getPreferredStoreLink(
@@ -32,6 +33,12 @@ export default function GameOverAppPromo() {
         href={store.href}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          trackAppStoreClick({
+            placement: "game_over",
+            platform: store.platform,
+          })
+        }
         size="small"
         endIcon={<OpenInNewRoundedIcon />}
       >

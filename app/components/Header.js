@@ -19,6 +19,7 @@ import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { colors } from "../theme/colors";
 import { getPreferredStoreLink } from "../utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -129,6 +130,12 @@ export default function Header() {
                 href={storeLink.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackAppStoreClick({
+                    placement: "header",
+                    platform: storeLink.platform,
+                  })
+                }
                 variant="outlined"
                 size="small"
                 endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
@@ -188,6 +195,12 @@ export default function Header() {
             href={storeLink.href}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() =>
+              trackAppStoreClick({
+                placement: "mobile_menu",
+                platform: storeLink.platform,
+              })
+            }
             endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}
             sx={{
               bgcolor: colors.text,

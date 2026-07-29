@@ -25,7 +25,8 @@ import { getLocalISODate } from "../utils/date";
 import { colors } from "../theme/colors";
 import { divisionTeams } from "../utils/divisionTeams";
 import { teamLogoMap } from "@/utils/teamLogoMap";
-import { appLinks } from "@/utils/appLinks";
+import { getPreferredStoreLink } from "../utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
 const STORAGE_PREFIX = "diamond_ri_";
 
@@ -413,6 +414,9 @@ function ResultsModal({
   resetGame,
   stats,
 }) {
+  const storeLink = getPreferredStoreLink(
+    typeof navigator === "undefined" ? "" : navigator.userAgent
+  );
   const winPercent = stats?.played
     ? Math.round(((stats.won || 0) / stats.played) * 100)
     : 0;
@@ -433,7 +437,7 @@ function ResultsModal({
       .fill(null)
       .map((_, i) => (matchedCols.includes(i) ? "🟩" : "🟥"))
       .join("");
-    const msg = `Diamond Trivia Reverse Immaculate ${game?.date}\nRows: ${solvedRows}\nCols: ${solvedCols}\nScore: ${score}/${total}\n\n${appLinks.appStore}`;
+    const msg = `Diamond Trivia Reverse Immaculate ${game?.date}\nRows: ${solvedRows}\nCols: ${solvedCols}\nScore: ${score}/${total}\n\nhttps://www.diamondtrivia.app/reverseimmaculate`;
 
     if (navigator.share) {
       try {
@@ -559,10 +563,17 @@ function ResultsModal({
           </Typography>
           <Button
             component="a"
-            href={appLinks.appStore}
+            href={storeLink.href}
             target="_blank"
             rel="noopener noreferrer"
             size="small"
+            onClick={() =>
+              trackAppStoreClick({
+                game: "Reverse Immaculate",
+                placement: "game_over",
+                platform: storeLink.platform,
+              })
+            }
           >
             Download Diamond Trivia
           </Button>

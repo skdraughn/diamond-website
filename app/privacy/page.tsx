@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Read the Diamond Trivia privacy policy.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPolicy() {
   const lastUpdated = new Date().toLocaleDateString("en-US", {

@@ -5,11 +5,13 @@ import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
 import PlayReverseImmaculate from "./PlayReverseImmaculate";
+import GameStructuredData from "../components/GameStructuredData";
 
 export const metadata = {
   title: "Reverse Immaculate | MLB Grid Challenge",
   description:
     "Play Reverse Immaculate, the daily MLB reverse grid challenge. Match teams to player headers and test your baseball memory.",
+  alternates: { canonical: "/reverseimmaculate" },
   openGraph: {
     ...openGraphImage,
     title: "Reverse Immaculate | MLB Player-Team Grid Game",
@@ -30,7 +32,25 @@ export const metadata = {
 
 export default function ReverseImmaculatePage() {
   return (
-    <GamePageLayout
+    <>
+      <GameStructuredData
+        name="Reverse Immaculate"
+        path="/reverseimmaculate"
+        description="A daily MLB reverse grid game where players infer team headers from player combinations."
+        faqs={[
+          {
+            question: "What is Reverse Immaculate?",
+            answer:
+              "Reverse Immaculate flips the classic baseball grid by showing player combinations and asking you to infer the team headers.",
+          },
+          {
+            question: "How do you play Reverse Immaculate?",
+            answer:
+              "Choose the MLB team that makes each row or column valid for every player shown.",
+          },
+        ]}
+      />
+      <GamePageLayout
       heading="Reverse Immaculate"
       subtitle="Match the teams to the players"
       intro="Instead of filling player names, identify the row and column teams that make the completed grid valid."
@@ -64,6 +84,7 @@ export default function ReverseImmaculatePage() {
       <Suspense fallback={<GamePageLoadingFallback />}>
         <PlayReverseImmaculate />
       </Suspense>
-    </GamePageLayout>
+      </GamePageLayout>
+    </>
   );
 }

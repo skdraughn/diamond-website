@@ -20,8 +20,10 @@ const firebaseConfig = {
     "922430195101",
   appId:
     process.env.NEXT_PUBLIC_FIREBASE_APP_ID ||
-    "1:922430195101:android:299ac738019a845a529b74",
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+    "1:922430195101:web:f117b68fb831957c529b74",
+  measurementId:
+    process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID ||
+    "G-4L4Q3VHXX1",
 };
 
 export function hasFirebaseConfig() {
@@ -30,6 +32,10 @@ export function hasFirebaseConfig() {
       firebaseConfig.projectId &&
       firebaseConfig.appId
   );
+}
+
+export function hasFirebaseAnalyticsConfig() {
+  return Boolean(hasFirebaseConfig() && firebaseConfig.measurementId);
 }
 
 export function getFirebaseApp() {

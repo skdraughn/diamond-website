@@ -1,4 +1,11 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Support",
+  description: "Get help with Diamond Trivia.",
+  alternates: { canonical: "/support" },
+};
 
 export default function SupportPage() {
   return (

@@ -1,2 +1,4 @@
-User-agent: Google-adstxt
-Disallow:
+User-agent: *
+Allow: /
+
+Sitemap: https://www.diamondtrivia.app/sitemap.xml

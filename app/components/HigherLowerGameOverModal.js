@@ -11,7 +11,6 @@ import {
 import { generateClient } from "aws-amplify/api";
 import { Close } from "@mui/icons-material";
 import { colors } from "../theme/colors";
-import { appLinks } from "@/utils/appLinks";
 import GameOverAppPromo from "./GameOverAppPromo";
 import Userbadge from "./Userbadge";
 import { formatRank, getCurrentRank } from "../utils/gridironThresholds";
@@ -123,7 +122,7 @@ export default function HigherLowerGameOverModal({
   }, [refresh, visible]);
 
   const handleShare = async () => {
-    const text = `Diamond Trivia Higher Lower\nScore: ${score}\nBest: ${maxScore}\n\n${appLinks.appStore}`;
+    const text = `Diamond Trivia Higher Lower\nScore: ${score}\nBest: ${maxScore}\n\nhttps://www.diamondtrivia.app/higherlower`;
     if (navigator.share) {
       try {
         await navigator.share({ title: "Diamond Trivia", text });

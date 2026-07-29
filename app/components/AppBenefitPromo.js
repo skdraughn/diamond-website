@@ -5,6 +5,7 @@ import { Box, Button, Typography } from "@mui/material";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { colors } from "../theme/colors";
 import { getPreferredStoreLink } from "../utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
 export default function AppBenefitPromo({ game }) {
   const [storeLink, setStoreLink] = useState(() => getPreferredStoreLink());
@@ -40,6 +41,13 @@ export default function AppBenefitPromo({ game }) {
         href={storeLink.href}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          trackAppStoreClick({
+            game,
+            placement: "game_benefit",
+            platform: storeLink.platform,
+          })
+        }
         endIcon={<OpenInNewRoundedIcon />}
       >
         Download Diamond Trivia

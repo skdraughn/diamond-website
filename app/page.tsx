@@ -8,6 +8,7 @@ import Footer from "./components/Footer";
 import GameModule from "./components/GameModule";
 import { colors } from "./theme/colors";
 import { getPreferredStoreLink } from "./utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
 const hlMaxScoreKey = "diamond_hl_max_score";
 
@@ -171,6 +172,12 @@ export default function Home() {
                 href={storeLink.href}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() =>
+                  trackAppStoreClick({
+                    placement: "homepage_hero",
+                    platform: storeLink.platform,
+                  })
+                }
                 variant="outlined"
                 size="large"
                 endIcon={<OpenInNewRoundedIcon sx={{ fontSize: 16 }} />}

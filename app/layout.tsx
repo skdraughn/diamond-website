@@ -6,6 +6,8 @@ import { openGraphImage } from "@/utils/sharedMetadata";
 import ThemeRegistry from "./theme/ThemeRegistry";
 import Header from "./components/Header";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import SiteStructuredData from "./components/SiteStructuredData";
+import FirebaseAnalytics from "./components/FirebaseAnalytics";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -39,6 +41,7 @@ export const metadata: Metadata = {
       "Play daily MLB trivia with Strikeout, Reverse Immaculate, and Higher Lower.",
   },
   metadataBase: new URL("https://www.diamondtrivia.app"),
+  alternates: { canonical: "/" },
 };
 
 export const viewport = {
@@ -55,9 +58,15 @@ export default function RootLayout({
 
   return (
     <html lang="en" className={`${outfit.variable} ${outfit.className}`}>
+      <head>
+        <meta name="apple-itunes-app" content="app-id=6761062612" />
+        <meta name="format-detection" content="telephone=no" />
+        <SiteStructuredData />
+      </head>
       <body
         className={`${geistMono.variable} antialiased`}
       >
+        <FirebaseAnalytics />
         <ConfigureAmplify />
         <AppRouterCacheProvider>
           <ThemeRegistry>

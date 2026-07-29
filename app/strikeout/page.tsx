@@ -5,11 +5,13 @@ import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
 import PlayStrikeout from "./PlayStrikeout";
+import GameStructuredData from "../components/GameStructuredData";
 
 export const metadata = {
   title: "Strikeout | MLB Stats Grid Game",
   description:
     "Play Strikeout, the daily MLB stats grid challenge. Match players to stat clues, build streaks, and test your baseball knowledge.",
+  alternates: { canonical: "/strikeout" },
   openGraph: {
     ...openGraphImage,
     title: "Strikeout | MLB Stats Grid Game",
@@ -30,7 +32,25 @@ export const metadata = {
 
 export default function StrikeoutPage() {
   return (
-    <GamePageLayout
+    <>
+      <GameStructuredData
+        name="Strikeout"
+        path="/strikeout"
+        description="A daily MLB stat grid game where players match baseball players to stat clues."
+        faqs={[
+          {
+            question: "What is Strikeout?",
+            answer:
+              "Strikeout is a daily MLB stat challenge where you complete a grid by entering every player that matches the prompt.",
+          },
+          {
+            question: "How do you play Strikeout?",
+            answer:
+              "Identify valid players for the prompt and fill every cell before using all three strikes.",
+          },
+        ]}
+      />
+      <GamePageLayout
       heading="Play Today's Strikeout"
       subtitle="Daily MLB stat-based trivia game"
       intro="Fill the board by matching players to stat clues. Each day brings a new challenge with fresh baseball prompts."
@@ -65,6 +85,7 @@ export default function StrikeoutPage() {
       <Suspense fallback={<GamePageLoadingFallback />}>
         <PlayStrikeout />
       </Suspense>
-    </GamePageLayout>
+      </GamePageLayout>
+    </>
   );
 }

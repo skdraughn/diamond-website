@@ -9,10 +9,12 @@ export function getPreferredStoreLink(userAgent = "") {
         href: appLinks.googlePlay,
         label: "Get it on Google Play",
         shortLabel: "Google Play",
+        platform: "android",
       }
     : {
         href: appLinks.appStore,
         label: "Download on the App Store",
         shortLabel: "App Store",
+        platform: "ios",
       };
 }

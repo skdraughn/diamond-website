@@ -20,7 +20,8 @@ import {
   Typography,
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
-import { appLinks } from "@/utils/appLinks";
+import { getPreferredStoreLink } from "../utils/appStore";
+import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 import useTriviaPlayers from "@/utils/useTriviaPlayers";
 import { STATIC_TEAMS } from "@/utils/teams";
 import { teamLogoMap } from "@/utils/teamLogoMap";
@@ -388,6 +389,9 @@ function CompleteDialog({
   onShare,
   onTryAgain,
 }: any) {
+  const storeLink = getPreferredStoreLink(
+    typeof navigator === "undefined" ? "" : navigator.userAgent
+  );
   const correctPercent = stats?.redZoneGamesTotalCells
     ? Math.round(
         (stats.redZoneGamesCorrectCells / stats.redZoneGamesTotalCells) * 100
@@ -508,10 +512,17 @@ function CompleteDialog({
           </Typography>
           <Button
             component="a"
-            href={appLinks.appStore}
+            href={storeLink.href}
             target="_blank"
             rel="noopener noreferrer"
             size="small"
+            onClick={() =>
+              trackAppStoreClick({
+                game: "Strikeout",
+                placement: "game_over",
+                platform: storeLink.platform,
+              })
+            }
           >
             Download Diamond Trivia
           </Button>
@@ -688,7 +699,7 @@ export default function PlayStrikeout() {
     const grid = game.cells
       .map((_: any, index: number) => (matched[index] ? "🟩" : "🟥"))
       .join("");
-    const shareText = `Diamond Trivia\nStrikeout ${game.date}\n\nScore: ${score}/${game.cells.length}\nStrikes: ${strikes}\n\n${grid}\n\n${appLinks.appStore}`;
+    const shareText = `Diamond Trivia\nStrikeout ${game.date}\n\nScore: ${score}/${game.cells.length}\nStrikes: ${strikes}\n\n${grid}\n\nhttps://www.diamondtrivia.app/strikeout`;
 
     if (navigator.share) {
       try {

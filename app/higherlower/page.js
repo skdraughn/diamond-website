@@ -5,11 +5,13 @@ import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
 import PlayHigherLower from "./PlayHigherLower";
+import GameStructuredData from "../components/GameStructuredData";
 
 export const metadata = {
   title: "Higher Lower | MLB Trivia Game",
   description:
     "Higher Lower is the MLB trivia game where you pick which player had more in the selected stat category.",
+  alternates: { canonical: "/higherlower" },
   openGraph: {
     ...openGraphImage,
     title: "Higher Lower | MLB Trivia Game",
@@ -29,7 +31,25 @@ export const metadata = {
 
 export default function HigherLowerPage() {
   return (
-    <GamePageLayout
+    <>
+      <GameStructuredData
+        name="Higher Lower"
+        path="/higherlower"
+        description="A fast MLB trivia game where players compare two baseball players in a stat category."
+        faqs={[
+          {
+            question: "What is Higher Lower?",
+            answer:
+              "Higher Lower is a fast MLB trivia game built around comparing player statistics.",
+          },
+          {
+            question: "How do you play Higher Lower?",
+            answer:
+              "Select the player who leads the displayed category and continue for as long as your streak survives.",
+          },
+        ]}
+      />
+      <GamePageLayout
       heading="Play Higher Lower"
       subtitle="Fast MLB stat comparison game"
       intro="Two players appear at a time. Pick who owns the better number in the category and keep your streak alive."
@@ -62,6 +82,7 @@ export default function HigherLowerPage() {
       <Suspense fallback={<GamePageLoadingFallback />}>
         <PlayHigherLower />
       </Suspense>
-    </GamePageLayout>
+      </GamePageLayout>
+    </>
   );
 }

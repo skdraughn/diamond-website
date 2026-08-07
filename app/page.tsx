@@ -37,6 +37,8 @@ export default function Home() {
     strikeout: {},
     reverseImmaculate: {},
     higherLower: { maxScore: 0 },
+    statStack: { played: 0, totalScoreTenths: 0, bestScoreTenths: 0 },
+    oneSixtyTwoZero: { played: 0, totalWins: 0, bestWins: 0, perfectSeasons: 0 },
   });
 
   useEffect(() => {
@@ -46,11 +48,15 @@ export default function Home() {
       const strikeout = safeJSONParse(localStorage.getItem("diamond_strikeout_stats"));
       const reverseImmaculate = safeJSONParse(localStorage.getItem("diamond_ri_stats"));
       const maxScore = Number(localStorage.getItem(hlMaxScoreKey) || 0);
+      const statStack = safeJSONParse(localStorage.getItem("diamond_stat_stack_stats"));
+      const oneSixtyTwoZero = safeJSONParse(localStorage.getItem("diamond_162_0_stats"));
 
       setLocalStats({
         strikeout,
         reverseImmaculate,
         higherLower: { maxScore },
+        statStack,
+        oneSixtyTwoZero,
       });
     };
 
@@ -100,6 +106,31 @@ export default function Home() {
         iconKey: "higherlower",
         href: "/higherlower",
         maxScore: localStats.higherLower.maxScore,
+      },
+      {
+        title: "Stat Stack",
+        description: "Build the best five-player stat lineup",
+        backgroundColor: colors.statStack,
+        iconKey: "statstack",
+        href: "/statstack",
+        played: Number(localStats.statStack.played || 0),
+        averageScore: localStats.statStack.played
+          ? (Number(localStats.statStack.totalScoreTenths || 0) / Number(localStats.statStack.played) / 10).toFixed(1)
+          : "0.0",
+        bestScore: (Number(localStats.statStack.bestScoreTenths || 0) / 10).toFixed(1),
+      },
+      {
+        title: "162-0",
+        description: "Draft the perfect five-player MLB roster",
+        backgroundColor: colors.oneSixtyTwoZero,
+        iconKey: "oneSixtyTwoZero",
+        href: "/162-0",
+        played: Number(localStats.oneSixtyTwoZero.played || 0),
+        averageWins: localStats.oneSixtyTwoZero.played
+          ? (Number(localStats.oneSixtyTwoZero.totalWins || 0) / Number(localStats.oneSixtyTwoZero.played)).toFixed(1)
+          : "0.0",
+        bestWins: Number(localStats.oneSixtyTwoZero.bestWins || 0),
+        perfectSeasons: Number(localStats.oneSixtyTwoZero.perfectSeasons || 0),
       },
     ],
     [localStats]
@@ -194,7 +225,7 @@ export default function Home() {
             Game Lineup
           </Typography>
           <Typography variant="body1" sx={{ color: colors.secondaryText, mt: 0.65, mb: 2.6 }}>
-            Three distinct ways to test your baseball knowledge, updated daily.
+            Five distinct ways to test your baseball knowledge, updated daily.
           </Typography>
 
           <Grid

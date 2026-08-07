@@ -4,16 +4,30 @@ import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
 import GridViewRoundedIcon from "@mui/icons-material/GridViewRounded";
 import ShuffleRoundedIcon from "@mui/icons-material/ShuffleRounded";
 import SwapVertRoundedIcon from "@mui/icons-material/SwapVertRounded";
+import StackedBarChartRoundedIcon from "@mui/icons-material/StackedBarChartRounded";
+import SportsBaseballRoundedIcon from "@mui/icons-material/SportsBaseballRounded";
 import { colors } from "../theme/colors";
 
 const iconMap = {
   strikeout: GridViewRoundedIcon,
   reverse: ShuffleRoundedIcon,
   higherlower: SwapVertRoundedIcon,
+  statstack: StackedBarChartRoundedIcon,
+  oneSixtyTwoZero: SportsBaseballRoundedIcon,
 };
 
-function getStats(title, { streak, won, winPercent, maxScore }) {
+function getStats(title, { streak, won, winPercent, maxScore, played, averageScore, bestScore, averageWins, perfectSeasons }) {
   if (title === "Higher Lower") return [{ label: "Best", value: maxScore || 0 }];
+  if (title === "Stat Stack") return [
+    { label: "Played", value: played || 0 },
+    { label: "Average", value: averageScore || "0.0" },
+    { label: "Best", value: bestScore || "0.0" },
+  ];
+  if (title === "162-0") return [
+    { label: "Played", value: played || 0 },
+    { label: "Avg wins", value: averageWins || "0.0" },
+    { label: "Perfect", value: perfectSeasons || 0 },
+  ];
   return [
     { label: "Streak", value: streak || 0 },
     { label: "Wins", value: won || 0 },
@@ -31,8 +45,13 @@ export default function GameModule({
   winPercent = "0%",
   href,
   maxScore = 0,
+  played = 0,
+  averageScore = "0.0",
+  bestScore = "0.0",
+  averageWins = "0.0",
+  perfectSeasons = 0,
 }) {
-  const stats = getStats(title, { streak, won, winPercent, maxScore });
+  const stats = getStats(title, { streak, won, winPercent, maxScore, played, averageScore, bestScore, averageWins, perfectSeasons });
   const Icon = iconMap[iconKey] || GridViewRoundedIcon;
 
   return (

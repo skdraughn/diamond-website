@@ -115,7 +115,7 @@
                 "WEEKLY_TABLE = f'WeeklyGridironLeaderboardEntry-{API_ID}-{ENV_NAME}'",
                 "ACH_TABLE = f'UserAchievement-{API_ID}-{ENV_NAME}'",
                 "ET = ZoneInfo('America/New_York')",
-                "DAILY_GAMES = ['REDZONE', 'REVERSE_IMMACULATE', 'STAT_STACK', 'HIGHER_LOWER']",
+                "DAILY_GAMES = ['REDZONE', 'REVERSE_IMMACULATE', 'STAT_STACK', 'HIGHER_LOWER', 'ONE_SIXTY_TWO_ZERO']",
                 "",
                 "def _n(attr, default=0):",
                 "    try: return int(float((attr or {}).get('N', default)))",

@@ -11,11 +11,13 @@ import { getFirebaseApp, hasFirebaseConfig } from "./firebaseClient";
 export const REMOTE_CONFIG_KEYS = {
   playersFileName: "playerfilename",
   numStrikes: "numstrikes",
+  oneSixtyTwoZeroCatalogURL: "onesixtytwozerocatalogurl",
 };
 
 export const REMOTE_CONFIG_DEFAULTS = {
   [REMOTE_CONFIG_KEYS.playersFileName]: "players_2026_04_09.json",
   [REMOTE_CONFIG_KEYS.numStrikes]: "3",
+  [REMOTE_CONFIG_KEYS.oneSixtyTwoZeroCatalogURL]: "/data/one-sixty-two-zero.local.json",
 };
 
 const FILE_NAME_PATTERN = /^[A-Za-z0-9._/-]+\.json$/;

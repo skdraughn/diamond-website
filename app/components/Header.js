@@ -26,6 +26,8 @@ const navLinks = [
   { href: "/strikeout", label: "Strikeout" },
   { href: "/reverseimmaculate", label: "Reverse Immaculate" },
   { href: "/higherlower", label: "Higher Lower" },
+  { href: "/statstack", label: "Stat Stack" },
+  { href: "/162-0", label: "162-0" },
 ];
 
 function HeaderLink({ href, label, active, onClick }) {

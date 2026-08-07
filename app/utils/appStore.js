@@ -1,5 +1,8 @@
 import { appLinks } from "@/utils/appLinks";
 
+export const iosAppUrl = appLinks.appStore;
+export const androidAppUrl = appLinks.googlePlay;
+
 export function getPreferredStoreLink(userAgent = "") {
   const ua = String(userAgent || "").toLowerCase();
   const isAndroid = ua.includes("android");

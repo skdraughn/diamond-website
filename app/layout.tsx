@@ -24,12 +24,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Diamond Trivia | Daily MLB Trivia Games",
   description:
-    "Play daily MLB trivia games including Strikeout, Reverse Immaculate, and Higher Lower. Test your baseball knowledge and build your streak.",
+    "Play daily MLB trivia games including Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0. Test your baseball knowledge and build your streak.",
   openGraph: {
     ...openGraphImage,
     title: "Diamond Trivia | Daily MLB Trivia Games",
     description:
-      "Test your MLB knowledge with Strikeout, Reverse Immaculate, and Higher Lower.",
+      "Test your MLB knowledge with Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0.",
     url: "https://www.diamondtrivia.app",
     siteName: "Diamond Trivia",
     type: "website",
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Diamond Trivia",
     description:
-      "Play daily MLB trivia with Strikeout, Reverse Immaculate, and Higher Lower.",
+      "Play daily MLB trivia with Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0.",
   },
   metadataBase: new URL("https://www.diamondtrivia.app"),
   alternates: { canonical: "/" },

@@ -342,9 +342,12 @@ type StatStackGame
   featuredStatUnit: String
   featuredStatPrecision: Int
   rows: [StatStackRow!]!
-  payloadURL: AWSURL!
-  payloadChecksum: String!
-  payloadSchemaVersion: Int!
+  payloadURL: AWSURL
+  payloadChecksum: String
+  payloadSchemaVersion: Int
+  compactPayloadURL: AWSURL
+  compactPayloadChecksum: String
+  compactPayloadSchemaVersion: Int
   attempts: Int
   adLocked: Boolean
 }
@@ -655,6 +658,7 @@ enum AchievementGameType {
   REVERSE_IMMACULATE
   HIGHER_LOWER
   STAT_STACK
+  ONE_SIXTY_TWO_ZERO
   WEEKLY_DIAMOND
 }
 
@@ -718,6 +722,7 @@ enum TriviaGameType {
   HIGHER_LOWER
   CONNECTIONS
   STAT_STACK
+  ONE_SIXTY_TWO_ZERO
 }
 
 # 2) League model
@@ -1094,6 +1099,37 @@ type AppConfig @model @auth(rules: [{ allow: public, operations: [read] }]) {
   value: AWSJSON
 }
 
+type UserOneSixtyTwoZeroAttempt
+  @model
+  @auth(
+    rules: [
+      {
+        allow: owner
+        operations: [create, read, update, delete]
+        identityClaim: "sub"
+        ownerField: "userID"
+      }
+      { allow: groups, groups: ["admin_full_access"] }
+    ]
+  ) {
+  id: ID!
+  userID: ID! @index(name: "byUser", sortKeyFields: ["date", "attemptNumber"])
+  date: AWSDate!
+  attemptNumber: Int!
+  catalogVersion: String!
+  spins: AWSJSON!
+  picks: AWSJSON!
+  currentRound: Int!
+  teamRerollsRemaining: Int!
+  eraRerollsRemaining: Int!
+  completed: Boolean!
+  projectedWins: Int
+  rosterRatingTenths: Int
+  completionPercent: Int
+  coinsEarned: Int
+  ticketConsumed: Boolean!
+}
+
 type User
   @model
   @auth(
@@ -1179,6 +1215,15 @@ type User
   energy: Float
   energyLastConsumedAt: AWSDateTime
   higherLowerMaxScore: Int
+  oneSixtyTwoZeroGamesPlayed: Int
+  oneSixtyTwoZeroTotalWins: Int
+  oneSixtyTwoZeroBestWins: Int
+  oneSixtyTwoZeroPerfectGames: Int
+  oneSixtyTwoZeroWinDistribution: [Int]
+  oneSixtyTwoZeroCurrentStreak: Int
+  oneSixtyTwoZeroLongestStreak: Int
+  oneSixtyTwoZeroLastPlayedDate: AWSDate
+  oneSixtyTwoZeroPurchasedTickets: Int
   subscriptionPlan: String
   subscriptionExpiration: AWSDateTime
   lastReadNotification: AWSDateTime
@@ -1198,6 +1243,8 @@ type User
   UserGriddleGames: [UserGriddleGame]
     @hasMany(indexName: "byUser", fields: ["id"])
   UserGTPGames: [UserGTPGame] @hasMany(indexName: "byUser", fields: ["id"])
+  UserOneSixtyTwoZeroAttempts: [UserOneSixtyTwoZeroAttempt]
+    @hasMany(indexName: "byUser", fields: ["id"])
 }
 
 type Friendship

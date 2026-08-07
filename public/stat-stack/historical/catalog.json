@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "logoKey": "anaheim-angels-2000-2001",
+      "teamName": "Anaheim Angels",
+      "startYear": 2000,
+      "endYear": 2001,
+      "sourcePage": "https://www.sportslogos.net/logos/view/lf4zyhheldhhxn0np6tlxm2wh/Anaheim-Angels-Logo/1997/Primary-Logo",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/53/49/full/anaheim_angels_logo_primary_19973619.png",
+      "outputSha256": "fc02650eb7f299d98a6fd905a41b71e2b253202f324679d05de333b850da4b1a"
+    },
+    {
+      "logoKey": "anaheim-angels-2002-2004",
+      "teamName": "Anaheim Angels",
+      "startYear": 2002,
+      "endYear": 2004,
+      "sourcePage": "https://www.sportslogos.net/logo.php?id=ft5ee5ejgzxdz3stfcruhw7cu",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/53/49/full/anaheim_angels_logo_primary_20025163.png",
+      "outputSha256": "3d33f51d369f8a0a5f51f14b8f247e1b22a7e35eb9ab7f1213ee32ad852cb7ed"
+    },
+    {
+      "logoKey": "california-angels-1980-1996",
+      "teamName": "California Angels",
+      "startYear": 1980,
+      "endYear": 1996,
+      "representativeLogoYears": "1986-1992",
+      "sourcePage": "https://www.sportslogos.net/logos/view/490/California-Angels-Logo/1986/Primary-Logo",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/53/592/full/california_angels_logo_primary_19863708.png",
+      "outputSha256": "e68c830c0bba61baea460779a2d2227c2c5d4aac0ab9949a4db742372d002327"
+    },
+    {
+      "logoKey": "cleveland-indians-2000-2021",
+      "teamName": "Cleveland Indians",
+      "startYear": 2000,
+      "endYear": 2021,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Cleveland_Indians_cap_logo.svg",
+      "sourceAssetURL": "https://upload.wikimedia.org/wikipedia/commons/0/0d/Cleveland_Indians_cap_logo.svg",
+      "outputSha256": "cc223197f28612148659b493201e6ec775ad06da0901fa6fbc3c0152070dbe31"
+    },
+    {
+      "logoKey": "florida-marlins-2000-2011",
+      "teamName": "Florida Marlins",
+      "startYear": 2000,
+      "endYear": 2011,
+      "sourcePage": "https://www.sportslogos.net/logos/view/uiqyat8zrx40ircpu9begvbwe/Florida-Marlins-Logo/1993/Primary-Logo",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/54/60/full/florida_marlins_logo_primary_19935464.png",
+      "outputSha256": "6116eabf04864bb15b553561c1a9ed360390b4e14538fd7d25a5e13ab3f37407"
+    },
+    {
+      "logoKey": "montreal-expos-2000-2004",
+      "teamName": "Montreal Expos",
+      "startYear": 2000,
+      "endYear": 2004,
+      "sourcePage": "https://en.wikipedia.org/wiki/File:Montreal_Expos_Logo.svg",
+      "sourceAssetURL": "https://upload.wikimedia.org/wikipedia/en/3/32/Montreal_Expos_Logo.svg",
+      "outputSha256": "02564a634f195d4d1fcc60020b9d44ba4cd5b85fa234db86a70fb5fe2d7b4349"
+    },
+    {
+      "logoKey": "tampa-bay-devil-rays-2000",
+      "teamName": "Tampa Bay Devil Rays",
+      "startYear": 2000,
+      "endYear": 2000,
+      "sourcePage": "https://www.sportslogos.net/logos/view/8ussmr9nym262dzff1g7te1it/Tampa_Bay_Devil_Rays/1998/Primary_Logo",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/53/76/full/tampa_bay_devil_rays_logo_primary_19982847.png",
+      "outputSha256": "6b6cb618615d0c8a4fc4934993f638f697b291b9a38bdb64c3b270d2c4853cce"
+    },
+    {
+      "logoKey": "tampa-bay-devil-rays-2001-2007",
+      "teamName": "Tampa Bay Devil Rays",
+      "startYear": 2001,
+      "endYear": 2007,
+      "sourcePage": "https://www.sportslogos.net/logos/view/1347/Tampa_Bay_Devil_Rays/2001/Primary_Logo",
+      "sourceAssetURL": "https://content.sportslogos.net/logos/53/76/full/tampa_bay_devil_rays_logo_primary_20011851.png",
+      "outputSha256": "e207ec26f7fc9794e04b8a9c581f984da4228a94484adf75a63b9d522dea1435"
+    }
+  ]
+}

@@ -77,6 +77,30 @@ export default function HigherLowerPage() {
             </>
           ),
         },
+        {
+          title: "Read the Category First",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              The better-known MLB player is not always the right answer. Identify the statistic being compared and the period shown on the cards before making your choice. Career totals, single-season totals, and per-game averages can tell very different stories.
+            </Typography>
+          ),
+        },
+        {
+          title: "A Simple Comparison Example",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              If one card shows 25 home runs and another shows 30, the second card has the higher total. ERA works differently: a 2.50 ERA is better than a 3.50 ERA. Read the category carefully instead of always choosing the larger number.
+            </Typography>
+          ),
+        },
+        {
+          title: "Build Better Stat Intuition",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Use what you know about each player’s role as a starting point, then consider the statistic itself. Specialists can beat famous all-around players in their best category. Stay focused on the two cards in front of you as the timer shortens; the goal is a correct comparison, not an overall ranking of baseball players.
+            </Typography>
+          ),
+        },
       ]}
     >
       <Suspense fallback={<GamePageLoadingFallback />}>

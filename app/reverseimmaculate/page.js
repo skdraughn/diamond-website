@@ -79,6 +79,30 @@ export default function ReverseImmaculatePage() {
             </>
           ),
         },
+        {
+          title: "Solve the Shared Team",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Each row or column gives you several MLB player careers to compare. Look for a team shared by every player in that line. One familiar player-team connection is a useful starting point, but it is not enough by itself to settle the header.
+            </Typography>
+          ),
+        },
+        {
+          title: "An Example of the Deduction",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Suppose the first player in a row played for teams A and B, the second for B and C, and the third for B and D. Team B is the shared connection. Those letters are an illustration of the logic, not clues or answers from today’s grid.
+            </Typography>
+          ),
+        },
+        {
+          title: "Start With the Strongest Connection",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Begin with the row or column whose players you know best. Consider shorter stops as well as the teams most associated with each player, and check your candidate against the entire line before spending a guess. Working through these overlaps turns baseball career knowledge into a process of elimination.
+            </Typography>
+          ),
+        },
       ]}
     >
       <Suspense fallback={<GamePageLoadingFallback />}>

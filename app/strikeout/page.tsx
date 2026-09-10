@@ -80,6 +80,30 @@ export default function StrikeoutPage() {
             </>
           ),
         },
+        {
+          title: "Work Through the Prompt",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Read the whole clue before naming a player. Check whether it asks for a career total, a single season, a specific team, or a particular stretch of MLB history. A player who meets the statistical threshold can still be wrong if the team or years do not match.
+            </Typography>
+          ),
+        },
+        {
+          title: "An Example of the Reasoning",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              For a hypothetical clue asking for 40-home-run seasons with one franchise, a player with 45 home runs for that team qualifies; a 35-home-run season does not. A 45-home-run season for a different team also fails. Check the total and the team together before submitting your guess.
+            </Typography>
+          ),
+        },
+        {
+          title: "Make Every Guess Count",
+          content: (
+            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
+              Start with the players you are most confident about, then work through the remaining possibilities by era or role. Re-read the clue when you get stuck: confusing a season total with a career total is an easy way to waste a strike. Use the daily challenge to test your baseball memory rather than guessing names at random.
+            </Typography>
+          ),
+        },
       ]}
     >
       <Suspense fallback={<GamePageLoadingFallback />}>

@@ -22,12 +22,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Diamond Trivia | Daily MLB Trivia Games",
+  title: "Diamond Trivia | Daily Baseball Trivia & MLB Games",
   description:
     "Play daily MLB trivia games including Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0. Test your baseball knowledge and build your streak.",
   openGraph: {
     ...openGraphImage,
-    title: "Diamond Trivia | Daily MLB Trivia Games",
+    title: "Diamond Trivia | Daily Baseball Trivia & MLB Games",
     description:
       "Test your MLB knowledge with Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0.",
     url: "https://www.diamondtrivia.app",

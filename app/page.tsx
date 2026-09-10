@@ -176,9 +176,9 @@ export default function Home() {
                 maxWidth: 760,
               }}
             >
-              Know baseball?
+              Daily Baseball Trivia
               <Box component="span" sx={{ display: "block", color: colors.ice }}>
-                Prove it every day.
+                &amp; MLB Games
               </Box>
             </Typography>
             <Typography

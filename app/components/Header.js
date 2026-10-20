@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import {
   AppBar,
   Box,
@@ -15,50 +14,17 @@ import {
   Typography,
 } from "@mui/material";
 import Image from "next/image";
+import TriviaSideNav from "./TriviaSideNav";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
 import { colors } from "../theme/colors";
 import { getPreferredStoreLink } from "../utils/appStore";
 import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
 
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/strikeout", label: "Strikeout" },
-  { href: "/reverseimmaculate", label: "Reverse Immaculate" },
-  { href: "/higherlower", label: "Higher Lower" },
-  { href: "/statstack", label: "Stat Stack" },
-  { href: "/162-0", label: "162-0" },
-];
-
-function HeaderLink({ href, label, active, onClick }) {
-  return (
-    <Link href={href} onClick={onClick}>
-      <Typography
-        sx={{
-          color: active ? colors.text : colors.secondaryText,
-          fontWeight: active ? 800 : 600,
-          lineHeight: 1.1,
-          "&:hover": { color: colors.text },
-        }}
-      >
-        {label}
-      </Typography>
-    </Link>
-  );
-}
-
 export default function Header() {
-  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [storeLink, setStoreLink] = useState(() => getPreferredStoreLink());
-
-  const activePath = useMemo(
-    () =>
-      navLinks.find(
-        ({ href }) => pathname === href || (href !== "/" && pathname.startsWith(href))
-      )?.href || "/",
-    [pathname]
-  );
 
   useEffect(() => {
     if (typeof navigator !== "undefined") {
@@ -75,20 +41,20 @@ export default function Header() {
         position="fixed"
         elevation={0}
         sx={{
-          py: { xs: 0.75, md: 1 },
+          py: 0,
           backgroundColor: "rgba(7,18,32,0.82)",
           backdropFilter: "blur(18px)",
           borderBottom: `1px solid ${colors.border}`,
         }}
       >
-        <Toolbar sx={{ p: 0 }}>
+        <Toolbar sx={{ p: 0, minHeight: "64px !important" }}>
           <Container
-            maxWidth="xl"
+            maxWidth="lg"
             sx={{
               display: "flex",
               alignItems: "center",
               gap: 2,
-              minHeight: { xs: 62, md: 72 },
+              minHeight: 64,
             }}
           >
             <Link href="/" aria-label="Go to homepage">
@@ -102,6 +68,7 @@ export default function Header() {
                 />
                 <Typography
                   variant="h6"
+                  component="span"
                   sx={{
                     fontSize: { xs: "1rem", md: "1.2rem" },
                     fontWeight: 800,
@@ -115,16 +82,6 @@ export default function Header() {
                 </Typography>
               </Stack>
             </Link>
-
-            <Stack
-              direction="row"
-              spacing={2.5}
-              sx={{ ml: 3, alignItems: "center", display: { xs: "none", lg: "flex" } }}
-            >
-              {navLinks.map(({ href, label }) => (
-                <HeaderLink key={href} href={href} label={label} active={activePath === href} />
-              ))}
-            </Stack>
 
             <Box sx={{ ml: "auto", display: "flex", alignItems: "center", gap: 1 }}>
               <Button
@@ -152,6 +109,7 @@ export default function Header() {
               </Button>
               <IconButton
                 aria-label="Open menu"
+                aria-expanded={mobileOpen}
                 onClick={() => setMobileOpen(true)}
                 sx={{ display: { xs: "inline-flex", lg: "none" }, color: colors.text }}
               >
@@ -177,20 +135,9 @@ export default function Header() {
           },
         }}
       >
-        <Typography variant="h6" sx={{ mb: 2, fontWeight: 700 }}>
-          Menu
-        </Typography>
-        <Stack spacing={2}>
-          {navLinks.map(({ href, label }) => (
-            <HeaderLink
-              key={href}
-              href={href}
-              label={label}
-              active={activePath === href}
-              onClick={() => setMobileOpen(false)}
-            />
-          ))}
-        </Stack>
+        <Stack direction="row" sx={{ mb: 2, alignItems: "center", justifyContent: "space-between" }}><Typography variant="h6" component="p">Menu</Typography><IconButton aria-label="Close menu" onClick={() => setMobileOpen(false)} sx={{color: colors.text}}><CloseRoundedIcon /></IconButton></Stack>
+        <TriviaSideNav mobile onNavigate={() => setMobileOpen(false)} />
+
         <Stack spacing={1.25} sx={{ mt: 2.5 }}>
           <Button
             component="a"

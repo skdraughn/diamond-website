@@ -5,6 +5,7 @@ import ConfigureAmplify from "@/components/ConfigureAmplify";
 import { openGraphImage } from "@/utils/sharedMetadata";
 import ThemeRegistry from "./theme/ThemeRegistry";
 import Header from "./components/Header";
+import SiteFrame from "./components/SiteFrame";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import SiteStructuredData from "./components/SiteStructuredData";
 import FirebaseAnalytics from "./components/FirebaseAnalytics";
@@ -24,12 +25,12 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Diamond Trivia | Daily Baseball Trivia & MLB Games",
   description:
-    "Play daily MLB trivia games including Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0. Test your baseball knowledge and build your streak.",
+    "Play daily baseball trivia and MLB games. Solve player clues and reverse grids, compare stats, and build a 162-0 team in your browser.",
   openGraph: {
     ...openGraphImage,
     title: "Diamond Trivia | Daily Baseball Trivia & MLB Games",
     description:
-      "Test your MLB knowledge with Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0.",
+      "Play daily baseball trivia and MLB games. Solve player clues and reverse grids, compare stats, and build a 162-0 team in your browser.",
     url: "https://www.diamondtrivia.app",
     siteName: "Diamond Trivia",
     type: "website",
@@ -38,7 +39,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Diamond Trivia",
     description:
-      "Play daily MLB trivia with Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0.",
+      "Play daily baseball trivia and MLB games. Solve player clues and reverse grids, compare stats, and build a 162-0 team in your browser.",
   },
   metadataBase: new URL("https://www.diamondtrivia.app"),
   alternates: { canonical: "/" },
@@ -71,7 +72,7 @@ export default function RootLayout({
         <AppRouterCacheProvider>
           <ThemeRegistry>
             <Header />
-            {children}
+            <SiteFrame>{children}</SiteFrame>
           </ThemeRegistry>
         </AppRouterCacheProvider>
       </body>

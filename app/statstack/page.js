@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { Typography } from "@mui/material";
 import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
@@ -7,22 +8,22 @@ import { openGraphImage } from "@/utils/sharedMetadata";
 import { colors } from "../theme/colors";
 
 export const metadata = {
-  title: "Stat Stack | Daily MLB Lineup Trivia Game",
+  title: "Stat Stack | Daily MLB Player Stats Game",
   description:
-    "Build a five-player MLB Stat Stack. Match every qualification and chase the highest possible percentile.",
+    "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",
   alternates: { canonical: "/statstack" },
   openGraph: {
     ...openGraphImage,
-    title: "Stat Stack | Daily MLB Lineup Trivia Game",
-    description: "Choose five qualifying player-seasons and maximize your MLB Stat Stack percentile.",
+    title: "Stat Stack | Daily MLB Player Stats Game",
+    description: "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",
     url: "https://www.diamondtrivia.app/statstack",
     siteName: "Diamond Trivia",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stat Stack | Daily MLB Trivia",
-    description: "Build the best five-player MLB lineup for today's qualifications.",
+    title: "Stat Stack | Daily MLB Player Stats Game",
+    description: "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",
   },
   robots: { index: true, follow: true },
 };
@@ -32,9 +33,8 @@ export default function StatStackPage() {
     <GamePageLayout
       heading="Play Stat Stack"
       subtitle="Build the highest-percentile MLB lineup"
-      intro="Fill five stacks with unique player-seasons. Every pick must satisfy its row, and stronger statistical seasons earn a higher percentile."
+      intro="Fill five rows with player-seasons that meet every clue. Your score depends on the featured stat shown at the top of the game. Each player can be used once."
       maxWidth="lg"
-      background={`linear-gradient(145deg, ${colors.background} 55%, rgba(160,32,240,0.12) 100%)`}
       infoSections={[
         {
           title: "What Is Stat Stack?",
@@ -42,8 +42,8 @@ export default function StatStackPage() {
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
               Stat Stack is a daily MLB trivia game about player seasons, team history,
               positions, awards, and statistical performance. Each puzzle asks you to
-              build a five-player lineup for one featured baseball stat—such as home runs,
-              hits, stolen bases, strikeouts, or wins—while satisfying a
+              build a five-player lineup for one featured baseball stat (such as home runs,
+              hits, stolen bases, strikeouts, or wins) while satisfying a
               different set of qualifications in every row.
             </Typography>
           ),
@@ -80,10 +80,15 @@ export default function StatStackPage() {
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
               Every eligible player-season is ranked against the other valid answers for
               its row. Better statistical seasons earn a higher percentile, up to 100.0.
-              Your final score is the average percentile of all five picks. Finding an
-              answer completes a row; finding an elite answer builds a great stack. That
-              makes the game both an MLB knowledge challenge and a strategy puzzle about
-              choosing the best possible baseball seasons.
+              Your final score is the average percentile of all five picks. Check the featured stat before choosing a season: a player’s best season for one stat may not be their best for another.
+            </Typography>
+          ),
+        },
+        {
+          title: "More Baseball Trivia Games",
+          content: (
+            <Typography sx={{ color: colors.secondaryText }}>
+              Build a team in the <Link href="/162-0">162-0 baseball game</Link> or solve the missing teams in <Link href="/reverseimmaculate">Reverse Immaculate</Link>.
             </Typography>
           ),
         },

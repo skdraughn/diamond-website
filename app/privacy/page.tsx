@@ -15,13 +15,13 @@ export default function PrivacyPolicy() {
   });
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-4 py-8 font-sans text-zinc-600 dark:bg-black dark:text-zinc-400 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-4xl bg-white p-8 shadow-sm dark:bg-zinc-900 dark:border dark:border-zinc-800 sm:p-12 rounded-lg">
+    <div className="min-h-screen  px-4 py-8 font-sans text-[var(--text-muted)]  text-[var(--text-muted)] sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-4xl  p-8    sm:p-12 rounded-lg">
         {/* Navigation */}
         <div className="mb-8 border-b border-zinc-200 pb-4 dark:border-zinc-800">
           <Link
             href="/"
-            className="group inline-flex items-center text-xs font-bold uppercase tracking-wider text-zinc-400 hover:text-red-600 transition-colors"
+            className="group inline-flex items-center text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] hover:text-red-600 transition-colors"
           >
             <svg
               className="mr-2 h-3 w-3 transition-transform group-hover:-translate-x-1"
@@ -42,10 +42,10 @@ export default function PrivacyPolicy() {
 
         {/* Header */}
         <div className="mb-10">
-          <h1 className="text-3xl font-black text-zinc-900 dark:text-white sm:text-4xl uppercase tracking-tight">
+          <h1 className="text-3xl font-black text-[var(--text-muted)] text-[var(--text)] sm:text-4xl uppercase tracking-tight">
             Privacy Policy
           </h1>
-          <p className="mt-2 text-sm text-zinc-500 font-mono">
+          <p className="mt-2 text-sm text-[var(--text-muted)] font-mono">
             Effective Date: {lastUpdated}
           </p>
         </div>
@@ -74,7 +74,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               1. Information We Collect
             </h2>
             <p>
@@ -83,7 +83,7 @@ export default function PrivacyPolicy() {
             </p>
             <div className="mt-4 space-y-4">
               <div>
-                <strong className="block text-zinc-900 dark:text-zinc-200">
+                <strong className="block text-[var(--text-muted)] text-[var(--text-muted)]">
                   1.1 Personal Information Provided by You
                 </strong>
                 <p className="mt-1">
@@ -96,7 +96,7 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
               <div>
-                <strong className="block text-zinc-900 dark:text-zinc-200">
+                <strong className="block text-[var(--text-muted)] text-[var(--text-muted)]">
                   1.2 Information Automatically Collected
                 </strong>
                 <p className="mt-1">
@@ -113,7 +113,7 @@ export default function PrivacyPolicy() {
                 </p>
               </div>
               <div>
-                <strong className="block text-zinc-900 dark:text-zinc-200">
+                <strong className="block text-[var(--text-muted)] text-[var(--text-muted)]">
                   1.3 Log and Usage Data
                 </strong>
                 <p className="mt-1">
@@ -133,7 +133,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               2. How We Use Your Information
             </h2>
             <p>
@@ -145,7 +145,7 @@ export default function PrivacyPolicy() {
               obligations. We indicate the specific processing grounds we rely
               on next to each purpose listed below:
             </p>
-            <ul className="mt-4 list-disc space-y-2 pl-5 marker:text-zinc-400">
+            <ul className="mt-4 list-disc space-y-2 pl-5 marker:text-[var(--text-muted)]">
               <li>
                 To facilitate account creation and logon process (if applicable
                 in future updates).
@@ -174,7 +174,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               3. Sharing Your Information
             </h2>
             <p>
@@ -183,7 +183,7 @@ export default function PrivacyPolicy() {
             </p>
             <ul className="mt-4 space-y-3">
               <li className="flex gap-3">
-                <span className="shrink-0 font-bold text-zinc-900 dark:text-zinc-200">
+                <span className="shrink-0 font-bold text-[var(--text-muted)] text-[var(--text-muted)]">
                   Consent:
                 </span>
                 <span>
@@ -192,7 +192,7 @@ export default function PrivacyPolicy() {
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="shrink-0 font-bold text-zinc-900 dark:text-zinc-200">
+                <span className="shrink-0 font-bold text-[var(--text-muted)] text-[var(--text-muted)]">
                   Legitimate Interests:
                 </span>
                 <span>
@@ -201,7 +201,7 @@ export default function PrivacyPolicy() {
                 </span>
               </li>
               <li className="flex gap-3">
-                <span className="shrink-0 font-bold text-zinc-900 dark:text-zinc-200">
+                <span className="shrink-0 font-bold text-[var(--text-muted)] text-[var(--text-muted)]">
                   Legal Obligations:
                 </span>
                 <span>
@@ -225,7 +225,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               4. Data Retention & Security
             </h2>
             <p>
@@ -254,7 +254,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               5. Privacy Rights (GDPR & CCPA)
             </h2>
             <div className="space-y-4">
@@ -296,7 +296,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               6. Policy Updates
             </h2>
             <p>
@@ -312,7 +312,7 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-lg font-bold text-zinc-900 dark:text-white uppercase">
+            <h2 className="mb-3 text-lg font-bold text-[var(--text-muted)] text-[var(--text)] uppercase">
               7. Contact Us
             </h2>
             <p>
@@ -320,7 +320,7 @@ export default function PrivacyPolicy() {
               us at{" "}
               <a
                 href="mailto:swipebite1@gmail.com"
-                className="font-bold text-zinc-900 underline dark:text-white"
+                className="font-bold text-[var(--text-muted)] underline text-[var(--text)]"
               >
                 swipebite1@gmail.com
               </a>
@@ -331,7 +331,7 @@ export default function PrivacyPolicy() {
 
         {/* Footer Legal */}
         <div className="mt-16 border-t border-zinc-200 pt-8 text-center dark:border-zinc-800">
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-[var(--text-muted)]">
             © {new Date().getFullYear()} Diamond Trivia. All rights reserved.
             This document is for informational purposes only and does not
             constitute legal advice.

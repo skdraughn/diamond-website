@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { Typography } from "@mui/material";
 import { openGraphImage } from "@/utils/sharedMetadata";
 import GamePageLayout from "../components/GamePageLayout";
@@ -8,23 +9,23 @@ import PlayHigherLower from "./PlayHigherLower";
 import GameStructuredData from "../components/GameStructuredData";
 
 export const metadata = {
-  title: "Higher Lower | MLB Trivia Game",
+  title: "MLB Higher or Lower | Baseball Stats Game",
   description:
-    "Higher Lower is the MLB trivia game where you pick which player had more in the selected stat category.",
+    "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",
   alternates: { canonical: "/higherlower" },
   openGraph: {
     ...openGraphImage,
-    title: "Higher Lower | MLB Trivia Game",
+    title: "MLB Higher or Lower | Baseball Stats Game",
     description:
-      "Pick the player with the higher stat and keep your streak alive in Higher Lower.",
+      "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",
     url: "https://www.diamondtrivia.app/higherlower",
     siteName: "Diamond Trivia",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Higher Lower | MLB Trivia Game",
-    description: "Compare MLB player stats and keep your streak alive in Higher Lower.",
+    title: "MLB Higher or Lower | Baseball Stats Game",
+    description: "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",
   },
   robots: { index: true, follow: true },
 };
@@ -50,15 +51,16 @@ export default function HigherLowerPage() {
         ]}
       />
       <GamePageLayout
+      reserveRightRail
       heading="Play Higher Lower"
-      subtitle="Fast MLB stat comparison game"
+      subtitle="An MLB higher or lower game against the clock"
       intro="Two players appear at a time. Pick who owns the better number in the category and keep your streak alive."
       infoSections={[
         {
           title: "What Is Higher Lower?",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Higher Lower is a speed-focused MLB trivia game built around stat intuition.
+              Higher Lower is a baseball stats game. Compare the two players in the category shown and choose before time runs out. Correct answers extend your streak, and the timer gets shorter as your score increases.
             </Typography>
           ),
         },
@@ -71,8 +73,7 @@ export default function HigherLowerPage() {
                 better.
               </Typography>
               <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-                You start with 10 seconds per choice, and the timer tightens as your run
-                gets hotter.
+                You start with 10 seconds per choice. As your score increases, you have less time to answer.
               </Typography>
             </>
           ),
@@ -98,6 +99,14 @@ export default function HigherLowerPage() {
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
               Use what you know about each player’s role as a starting point, then consider the statistic itself. Specialists can beat famous all-around players in their best category. Stay focused on the two cards in front of you as the timer shortens; the goal is a correct comparison, not an overall ranking of baseball players.
+            </Typography>
+          ),
+        },
+        {
+          title: "More Baseball Trivia Games",
+          content: (
+            <Typography sx={{ color: colors.secondaryText }}>
+              Choose player-seasons in <Link href="/statstack">MLB Stat Stack</Link> or solve the missing teams in <Link href="/reverseimmaculate">Reverse Immaculate</Link>.
             </Typography>
           ),
         },

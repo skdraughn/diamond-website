@@ -1,12 +1,11 @@
 import { Box, Container, Divider, Stack, Typography } from "@mui/material";
-import Footer from "./Footer";
 import { colors } from "../theme/colors";
 import AppBenefitPromo from "./AppBenefitPromo";
 
 function GameInfoSection({ title, children }) {
   return (
     <Box component="section" sx={{ mt: { xs: 4, md: 5 } }}>
-      <Typography variant="h2" sx={{ fontSize: { xs: "1.4rem", md: "1.9rem" }, mb: 1.1 }}>
+      <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.5rem" }, mb: 1.1 }}>
         {title}
       </Typography>
       <Stack spacing={1.1}>{children}</Stack>
@@ -21,6 +20,7 @@ export default function GamePageLayout({
   intro = "",
   infoSections,
   maxWidth = "md",
+  reserveRightRail = false,
   background = "transparent",
   showHeader = true,
 }) {
@@ -31,19 +31,20 @@ export default function GamePageLayout({
       sx={{
         width: "100%",
         minHeight: "100dvh",
-        pt: { xs: "6.8rem", md: "8.25rem" },
+        pt: 0,
         pb: 0,
         background,
       }}
     >
-      <Container maxWidth={maxWidth} sx={{ display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: "grid", gridTemplateColumns: reserveRightRail ? { xs: "minmax(0, 1fr)", lg: "minmax(0, 1fr) minmax(17rem, 20rem)" } : "minmax(0, 1fr)", gap: "1.25rem", alignItems: "start", minWidth: 0 }}>
+      <Container maxWidth={maxWidth} sx={{ display: "flex", flexDirection: "column", px: "0 !important" }}>
         {showHeader ? (
           <Box sx={{ mb: 2.5 }}>
-            <Typography variant="h1" sx={{ fontSize: { md: "2.8rem", xs: "1.75rem" }, lineHeight: 1.05 }}>
+            <Typography variant="h1" sx={{ fontSize: { md: "1.85rem", xs: "1.5rem" }, lineHeight: 1.05 }}>
               {heading}
             </Typography>
             {subtitle && (
-              <Typography variant="h6" sx={{ color: colors.secondaryText, mt: 0.5, lineHeight: 1.35 }}>
+              <Typography variant="body1" component="p" sx={{ color: colors.secondaryText, mt: 0.5, lineHeight: 1.35 }}>
                 {subtitle}
               </Typography>
             )}
@@ -67,7 +68,9 @@ export default function GamePageLayout({
         )}
         <AppBenefitPromo game={heading.replace(/^Play (Today’s |Today's )?/, "")} />
       </Container>
-      <Footer sx={{ mt: 5 }} />
+      {reserveRightRail && <Box aria-hidden="true" sx={{ display: { xs: "none", lg: "block" }, minWidth: 0 }} />}
+      </Box>
+
     </Box>
   );
 }

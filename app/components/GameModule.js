@@ -94,7 +94,7 @@ export default function GameModule({
             <Box sx={{ minWidth: 0, flex: 1 }}>
               <Stack direction="row" spacing={0.35} sx={{ alignItems: "center" }}>
                 <Typography
-                  variant="h6"
+                  variant="h6" component="h3"
                   sx={{ fontWeight: 800, lineHeight: 1.05, fontSize: { xs: "1rem", md: "1.05rem" } }}
                 >
                   {title}
@@ -107,10 +107,10 @@ export default function GameModule({
                   color: colors.secondaryText,
                   mt: 0.32,
                   fontSize: { xs: "0.91rem", md: "0.94rem" },
-                  lineHeight: 1.2,
+                  lineHeight: 1.35,
+                minHeight: "2.7em",
                 }}
-                noWrap
-              >
+                >
                 {description}
               </Typography>
             </Box>

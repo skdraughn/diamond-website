@@ -368,7 +368,7 @@ export default function PlayHigherLower() {
       <Container
         maxWidth="lg"
         sx={{
-          py: { xs: 2, md: 3 },
+          py: { xs: 1, md: 2 },
           px: { xs: 1, sm: 2 },
           display: "flex",
           flexDirection: "column",

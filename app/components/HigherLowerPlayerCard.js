@@ -76,7 +76,7 @@ export default function HigherLowerPlayerCard({
             justifyContent: "center",
             textAlign: "center",
             px: { xs: 2, md: 3 },
-            py: { xs: 4, md: 5 },
+            py: { xs: 3, md: 3.5 },
             transition: "background-color 160ms ease, border-color 160ms ease",
           }}
         >

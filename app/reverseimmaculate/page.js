@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { Typography } from "@mui/material";
 import { openGraphImage } from "@/utils/sharedMetadata";
 import GamePageLayout from "../components/GamePageLayout";
@@ -8,24 +9,24 @@ import PlayReverseImmaculate from "./PlayReverseImmaculate";
 import GameStructuredData from "../components/GameStructuredData";
 
 export const metadata = {
-  title: "Reverse Immaculate | MLB Grid Challenge",
+  title: "Reverse Immaculate Grid | Daily MLB Grid Game",
   description:
-    "Play Reverse Immaculate, the daily MLB reverse grid challenge. Match teams to player headers and test your baseball memory.",
+    "Play a daily MLB grid game with the players already filled in. Find the six missing teams in Reverse Immaculate and test your baseball knowledge.",
   alternates: { canonical: "/reverseimmaculate" },
   openGraph: {
     ...openGraphImage,
-    title: "Reverse Immaculate | MLB Player-Team Grid Game",
+    title: "Reverse Immaculate Grid | Daily MLB Grid Game",
     description:
-      "Reverse-engineer MLB team headers from a completed player grid in this daily challenge.",
+      "Play a daily MLB grid game with the players already filled in. Find the six missing teams in Reverse Immaculate and test your baseball knowledge.",
     url: "https://www.diamondtrivia.app/reverseimmaculate",
     siteName: "Diamond Trivia",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Reverse Immaculate | MLB Grid Game",
+    title: "Reverse Immaculate Grid | Daily MLB Grid Game",
     description:
-      "Match teams to players in the daily Reverse Immaculate puzzle from Diamond Trivia.",
+      "Play a daily MLB grid game with the players already filled in. Find the six missing teams in Reverse Immaculate and test your baseball knowledge.",
   },
   robots: { index: true, follow: true },
 };
@@ -51,16 +52,16 @@ export default function ReverseImmaculatePage() {
         ]}
       />
       <GamePageLayout
+      reserveRightRail
       heading="Reverse Immaculate"
-      subtitle="Match the teams to the players"
-      intro="Instead of filling player names, identify the row and column teams that make the completed grid valid."
+      subtitle="The daily MLB grid game with the players already filled in"
+      intro="Find the missing team for each row and column. Every player in that line must have played for your chosen team. Solve all six headers to finish today’s baseball grid."
       infoSections={[
         {
           title: "What Is Reverse Immaculate?",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Reverse Immaculate flips the classic grid format. You are shown player
-              combinations and must infer the correct team headers.
+              Reverse Immaculate is a daily MLB reverse grid. The nine player squares are filled in, and the six team headers are missing. Use the players’ career histories to work out which team belongs beside each row and above each column.
             </Typography>
           ),
         },
@@ -88,10 +89,10 @@ export default function ReverseImmaculatePage() {
           ),
         },
         {
-          title: "An Example of the Deduction",
+          title: "Check All Three Players",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Suppose the first player in a row played for teams A and B, the second for B and C, and the third for B and D. Team B is the shared connection. Those letters are an illustration of the logic, not clues or answers from today’s grid.
+              A team that fits two players can still be wrong. Check the third player before submitting. Short stays and teams from early in a player’s career count too, so look beyond the jersey you remember best.
             </Typography>
           ),
         },
@@ -100,6 +101,14 @@ export default function ReverseImmaculatePage() {
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
               Begin with the row or column whose players you know best. Consider shorter stops as well as the teams most associated with each player, and check your candidate against the entire line before spending a guess. Working through these overlaps turns baseball career knowledge into a process of elimination.
+            </Typography>
+          ),
+        },
+        {
+          title: "More Baseball Trivia Games",
+          content: (
+            <Typography sx={{ color: colors.secondaryText }}>
+              Build an undefeated team in the <Link href="/162-0">162-0 baseball game</Link>, or pick qualifying player-seasons in <Link href="/statstack">MLB Stat Stack</Link>.
             </Typography>
           ),
         },

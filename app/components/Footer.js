@@ -21,7 +21,7 @@ export default function Footer({ sx = {} }) {
       }}
     >
       <Container
-        maxWidth="xl"
+        maxWidth="lg"
         sx={{
           display: "flex",
           flexDirection: { xs: "column", md: "row" },

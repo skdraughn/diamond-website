@@ -23,7 +23,6 @@ import {
 } from "@mui/material";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ChevronRightRoundedIcon from "@mui/icons-material/ChevronRightRounded";
-import InfoOutlinedIcon from "@mui/icons-material/InfoOutlined";
 import RefreshRoundedIcon from "@mui/icons-material/RefreshRounded";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import ShareRoundedIcon from "@mui/icons-material/ShareRounded";
@@ -2083,15 +2082,6 @@ export default function PlayOneSixtyTwoZero() {
   }
   return (
     <>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
-        <Button
-          variant="text"
-          startIcon={<InfoOutlinedIcon />}
-          onClick={() => document.getElementById("how-to-play-162-0")?.scrollIntoView({ behavior: "smooth" })}
-        >
-          How to play
-        </Button>
-      </Box>
       <GameBoard catalog={catalog} state={state} setState={setState} stats={stats} setStats={setStats} />
       <Box component="style">{`
         @keyframes eightyReel {

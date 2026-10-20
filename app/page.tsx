@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Box, Button, Container, Grid, Stack, Typography } from "@mui/material";
 import OpenInNewRoundedIcon from "@mui/icons-material/OpenInNewRounded";
-import Footer from "./components/Footer";
+import HomeGameGuide from "./components/HomeGameGuide";
 import GameModule from "./components/GameModule";
 import { colors } from "./theme/colors";
 import { getPreferredStoreLink } from "./utils/appStore";
@@ -89,7 +89,7 @@ export default function Home() {
       },
       {
         title: "Reverse Immaculate",
-        description: "Match teams to players",
+        description: "Find the missing teams in an MLB grid",
         backgroundColor: colors.gold,
         iconKey: "reverse",
         href: "/reverseimmaculate",
@@ -101,7 +101,7 @@ export default function Home() {
       },
       {
         title: "Higher Lower",
-        description: "Pick which player had more",
+        description: "Pick the higher MLB stat",
         backgroundColor: colors.higherLower,
         iconKey: "higherlower",
         href: "/higherlower",
@@ -109,7 +109,7 @@ export default function Home() {
       },
       {
         title: "Stat Stack",
-        description: "Build the best five-player stat lineup",
+        description: "Pick five seasons for the featured stat",
         backgroundColor: colors.statStack,
         iconKey: "statstack",
         href: "/statstack",
@@ -121,7 +121,7 @@ export default function Home() {
       },
       {
         title: "162-0",
-        description: "Draft the perfect five-player MLB roster",
+        description: "Build a 162-0 team",
         backgroundColor: colors.oneSixtyTwoZero,
         iconKey: "oneSixtyTwoZero",
         href: "/162-0",
@@ -138,6 +138,7 @@ export default function Home() {
 
   return (
     <Box
+      component="main"
       sx={{
         minHeight: "100dvh",
         display: "flex",
@@ -148,7 +149,7 @@ export default function Home() {
     >
       <Container
         maxWidth="lg"
-        sx={{ pt: { xs: "8.25rem", md: "10.75rem" }, pb: { xs: 5.5, md: 7 }, flex: 1 }}
+        sx={{ pt: 0, px: "0 !important", pb: { xs: 3, md: 4 }, flex: 1 }}
       >
         <Box
           sx={{
@@ -157,20 +158,9 @@ export default function Home() {
         >
           <Box>
             <Typography
-              variant="overline"
-              sx={{
-                color: colors.ice,
-                fontWeight: 800,
-                letterSpacing: "0.14em",
-                fontSize: "0.73rem",
-              }}
-            >
-              DAILY MLB TRIVIA
-            </Typography>
-            <Typography
               variant="h1"
               sx={{
-                fontSize: { xs: "2.35rem", md: "3.65rem" },
+                fontSize: { xs: "1.9rem", md: "2.6rem" },
                 lineHeight: 1.02,
                 mt: 0.8,
                 maxWidth: 760,
@@ -186,15 +176,14 @@ export default function Home() {
               sx={{
                 color: colors.secondaryText,
                 maxWidth: 680,
-                mt: 2,
+                mt: 1.25,
                 fontSize: { xs: "1rem", md: "1.1rem" },
               }}
             >
-              Play today&apos;s MLB trivia lineup on the web, build your streaks, and
-              take collections, leaderboards, multiplayer, and more into the Diamond app.
+              Play daily baseball trivia and MLB games. Name players from stat clues, solve a reverse grid, compare player stats, or build a 162-0 team. The Diamond app offers more ways to play.
             </Typography>
 
-            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2.9 }}>
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2 }}>
               <Button component={Link} href="/strikeout" size="large">
                 Play Today&apos;s Lineup
               </Button>
@@ -220,18 +209,18 @@ export default function Home() {
           </Box>
         </Box>
 
-        <Box sx={{ mt: { xs: 5.8, md: 7.2 } }}>
+        <Box sx={{ mt: { xs: 3, md: 4 } }}>
           <Typography variant="h2" sx={{ fontSize: { xs: "1.5rem", md: "2rem" } }}>
-            Game Lineup
+            Choose Your Baseball Trivia Game
           </Typography>
           <Typography variant="body1" sx={{ color: colors.secondaryText, mt: 0.65, mb: 2.6 }}>
-            Five distinct ways to test your baseball knowledge, updated daily.
+            Play Strikeout, Reverse Immaculate, Higher Lower, Stat Stack, and 162-0 in your browser.
           </Typography>
 
           <Grid
             container
-            rowSpacing={{ xs: 3.5, md: 4 }}
-            columnSpacing={{ xs: 2, sm: 2.5, lg: 3 }}
+            rowSpacing={{ xs: 2.5, md: 3 }}
+            columnSpacing={{ xs: 2, sm: 2.5, lg: 4 }}
             sx={{ mt: 0.2 }}
           >
             {games.map((game) => (
@@ -241,9 +230,9 @@ export default function Home() {
             ))}
           </Grid>
         </Box>
+        <HomeGameGuide />
       </Container>
 
-      <Footer />
     </Box>
   );
 }

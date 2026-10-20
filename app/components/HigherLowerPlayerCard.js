@@ -75,8 +75,11 @@ export default function HigherLowerPlayerCard({
             alignItems: "center",
             justifyContent: "center",
             textAlign: "center",
-            px: { xs: 2, md: 3 },
-            py: { xs: 3, md: 3.5 },
+            px: { xs: 1.25, sm: 2, md: 3 },
+            "& img": { width: { xs: "36px", sm: "80px" }, height: { xs: "36px", sm: "80px" }, marginBottom: { xs: "4px", sm: "10px" } },
+            "& .MuiTypography-h5": { fontSize: { xs: "1.05rem", sm: "1.5rem" }, lineHeight: 1.2 },
+            "& .MuiTypography-subtitle2": { fontSize: { xs: "0.75rem", sm: "0.875rem" } },
+            py: { xs: 1, sm: 3, md: 3.5 },
             transition: "background-color 160ms ease, border-color 160ms ease",
           }}
         >
@@ -97,10 +100,7 @@ export default function HigherLowerPlayerCard({
                 width={80}
                 height={80}
                 style={{
-                  width: "80px",
-                  height: "80px",
                   objectFit: "contain",
-                  marginBottom: "10px",
                 }}
               />
             ) : null}
@@ -128,9 +128,9 @@ export default function HigherLowerPlayerCard({
 
             <Box
               sx={{
-                mt: 2,
-                px: 3.5,
-                py: 1.25,
+                mt: { xs: 0.5, sm: 2 },
+                px: { xs: 2, sm: 3.5 },
+                py: { xs: 0.25, sm: 1.25 },
                 bgcolor: colors.background,
                 borderRadius: 1.5,
                 border: `1px solid ${colors.border}`,

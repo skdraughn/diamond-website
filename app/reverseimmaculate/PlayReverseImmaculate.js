@@ -1,5 +1,7 @@
 "use client";
 
+import { decodeMojibake } from "../utils/normalizePlayers";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
@@ -80,7 +82,7 @@ function TeamHeader({
 }) {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const size = isMobile ? 72 : 108;
+  const size = isMobile ? 52 : 108;
   const correctTeam = findTeam(teams, teamID);
   const isMatched = matched || (completed && answersShown);
   const logoSrc = getTeamLogoSource(correctTeam?.logoURL);
@@ -202,7 +204,7 @@ function GridCell({
 }) {
   const rowLogo = getTeamLogoSource(findTeam(teams, rowTeam)?.logoURL);
   const colLogo = getTeamLogoSource(findTeam(teams, colTeam)?.logoURL);
-  const fullName = player || "-";
+  const fullName = decodeMojibake(player || "-");
 
   const renderBadge = (logo, visible, label) => (
     <Box
@@ -321,7 +323,8 @@ function TeamSelectModal({
           maxHeight: "80vh",
           overflowY: "auto",
           p: 3,
-          minWidth: { xs: "min(92vw, 420px)", sm: 420 },
+          width: { xs: "min(92vw, 420px)", sm: 520 },
+          maxWidth: "92vw",
         }}
       >
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
@@ -337,11 +340,11 @@ function TeamSelectModal({
 
         <Grid container columnSpacing={4} rowSpacing={1}>
           {Object.entries(divisionTeams).map(([division, divTeams]) => (
-            <Grid size={6} key={division}>
+            <Grid size={{ xs: 12, sm: 6 }} key={division}>
               <Typography variant="body2" sx={{ color: colors.secondaryText, mb: 0.5 }}>
                 {division}
               </Typography>
-              <Box sx={{ display: "flex", flexDirection: "row", gap: 1, width: "100%" }}>
+              <Box sx={{ display: "flex", flexDirection: "row", gap: { xs: 0.5, sm: 1 }, width: "100%" }}>
                 {divTeams.map((teamName) => {
                   const team = teams.find(({ name }) => name === teamName);
                   if (!team) return null;
@@ -361,6 +364,9 @@ function TeamSelectModal({
                       }
                       sx={{
                         flex: 1,
+                        minWidth: 44,
+                        minHeight: 44,
+                        "&:focus-visible": { outline: `2px solid ${colors.primary}`, outlineOffset: 2 },
                         aspectRatio: 1,
                         borderRadius: 1,
                         cursor: alreadyGuessed ? "not-allowed" : "pointer",
@@ -789,14 +795,14 @@ export default function PlayReverseImmaculate() {
         <Box
           sx={{
             display: "grid",
-            gridTemplateColumns: `${isMobile ? "72px" : "112px"} repeat(${
+            gridTemplateColumns: `${isMobile ? "52px" : "112px"} repeat(${
               game.colTeams.length
-            }, minmax(${isMobile ? "72px" : "104px"}, 1fr))`,
-            gridTemplateRows: `${isMobile ? "72px" : "112px"} repeat(${
+            }, minmax(0, 1fr))`,
+            gridTemplateRows: `${isMobile ? "52px" : "112px"} repeat(${
               game.rowTeams.length
-            }, minmax(${isMobile ? "72px" : "104px"}, 1fr))`,
+            }, minmax(0, 1fr))`,
             gap: { xs: 0.75, md: 1 },
-            minWidth: isMobile ? "360px" : "auto",
+            minWidth: 0,
           }}
         >
           <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}>

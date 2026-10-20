@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { colors } from "../theme/colors";
 import { abbreviationsToColorMap } from "../utils/positions";
+import { decodeMojibake } from "../utils/normalizePlayers";
 import useFastPlayerSearch from "../hooks/useFastPlayerSearch";
 
 const PlayerSearch = ({
@@ -31,17 +32,7 @@ const PlayerSearch = ({
     teams
   );
 
-  // Fix common UTF-8 mojibake (e.g. "Don\u00c4\u008di\u00c4\u0087" -> "Dončić")
-  const fixMojibake = (str) => {
-    try {
-      const hexEscaped = Array.from(str)
-        .map((c) => "%" + c.charCodeAt(0).toString(16).padStart(2, "0"))
-        .join("");
-      return decodeURIComponent(hexEscaped);
-    } catch {
-      return str;
-    }
-  };
+
   // Focus the input field on mount
   useEffect(() => {
     inputRef.current?.focus();
@@ -119,7 +110,7 @@ const PlayerSearch = ({
             {!isTeamGame
               ? filteredPlayers.map((player, index) => {
                   // decode any mojibake
-                  const orig = fixMojibake(player.name);
+                  const orig = decodeMojibake(player.name);
 
                   return (
                     <ListItem

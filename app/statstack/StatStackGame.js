@@ -133,15 +133,15 @@ function ConstraintContent({ constraint }) {
   }
 
   if (displayLogoKeys.length) {
-    const isDivision = constraint.key === "division";
     return (
       <Stack
         direction="row"
         useFlexGap
-        gap={0.45}
+        gap={{ xs: 0.2, sm: 0.45 }}
         sx={{
-          flexWrap: isDivision ? { xs: "wrap", sm: "nowrap" } : "wrap",
-          width: isDivision ? { xs: 56, sm: "auto" } : "auto",
+          flexWrap: "nowrap",
+          width: "100%",
+          minWidth: 0,
           maxWidth: "100%",
           alignItems: "center",
         }}
@@ -155,12 +155,14 @@ function ConstraintContent({ constraint }) {
             sx={{
               width:
                 displayLogoKeys.length > 1
-                  ? { xs: 26, sm: 34, md: 42 }
+                  ? { xs: "min(26px, 18%)", sm: 34, md: 42 }
                   : { xs: 52, md: 66 },
               height:
                 displayLogoKeys.length > 1
                   ? { xs: 26, sm: 34, md: 42 }
                   : { xs: 52, md: 66 },
+              minWidth: 0,
+              flexShrink: 1,
               objectFit: "contain",
             }}
           />
@@ -205,7 +207,6 @@ function ConstraintContent({ constraint }) {
           fontWeight: 800,
           letterSpacing: "0.06em",
         }}
-        noWrap
       >
         {(constraint.key === "position"
           ? "POSITION"
@@ -673,7 +674,7 @@ export default function StatStackGame() {
                 <Stack
                   direction="row"
                   gap={1.25}
-                  sx={{ flex: 1, minWidth: 0, p: { xs: 1, md: 1.15 }, alignItems: "center" }}
+                  sx={{ flex: 1, minWidth: 0, p: { xs: 1, md: 1.15 }, alignItems: "center", display: { xs: "grid", sm: "flex" }, gridTemplateColumns: "32px minmax(0, 1fr)", "& > :nth-child(3)": { gridColumn: 2 } }}
                 >
                   {!pick.skipped && pick.logoKey ? (
                     <Box
@@ -681,8 +682,8 @@ export default function StatStackGame() {
                       src={logoSrc(pick.logoKey)}
                       alt=""
                       sx={{
-                        width: { xs: 52, md: 66 },
-                        height: { xs: 52, md: 66 },
+                        width: { xs: 32, sm: 52, md: 66 },
+                        height: { xs: 32, sm: 52, md: 66 },
                         objectFit: "contain",
                         flex: "0 0 auto",
                       }}
@@ -691,7 +692,7 @@ export default function StatStackGame() {
                     <Box sx={{ width: 44, flex: "0 0 auto" }} />
                   )}
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography fontWeight={800} noWrap>
+                    <Typography fontWeight={800} sx={{ overflowWrap: "anywhere", lineHeight: 1.25 }}>
                       {decodeMojibake(pick.playerName)}
                     </Typography>
                     <Typography color={colors.secondaryText}>
@@ -700,7 +701,7 @@ export default function StatStackGame() {
                         : `${formatMLBSeason(pick.season)} · ${pick.teamName || ""}`}
                     </Typography>
                   </Box>
-                  <Box sx={{ pl: 1.5, minWidth: 120, textAlign: "right" }}>
+                  <Box sx={{ pl: { xs: 0, sm: 1.5 }, minWidth: { xs: 0, sm: 120 }, textAlign: { xs: "left", sm: "right" } }}>
                     <Typography fontWeight={800}>
                       {Number(pick.statValue || 0).toLocaleString()}{" "}
                       <Typography component="span" sx={{ color: colors.secondaryText, fontSize: "0.66rem", fontWeight: 800 }}>
@@ -808,7 +809,7 @@ export default function StatStackGame() {
                         <Stack
                           direction="row"
                           gap={1.25}
-                          sx={{ flex: 1, minWidth: 0, p: { xs: 1, md: 1.15 }, alignItems: "center" }}
+                          sx={{ flex: 1, minWidth: 0, p: { xs: 1, md: 1.15 }, alignItems: "center", display: { xs: "grid", sm: "flex" }, gridTemplateColumns: "32px minmax(0, 1fr)", "& > :nth-child(3)": { gridColumn: 2 } }}
                         >
                         <Box
                           component="img"
@@ -822,7 +823,7 @@ export default function StatStackGame() {
                           }}
                         />
                         <Box sx={{ flex: 1, minWidth: 0 }}>
-                          <Typography fontWeight={800} noWrap>
+                          <Typography fontWeight={800} sx={{ overflowWrap: "anywhere", lineHeight: 1.25 }}>
                             {player?.playerName || player?.name || "MLB player"}
                           </Typography>
                           <Typography variant="body2" color={colors.secondaryText}>

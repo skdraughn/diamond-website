@@ -385,7 +385,7 @@ export default function PlayHigherLower() {
 
         <Paper
           sx={{
-            p: { xs: 1.5, sm: 2.5, md: 3 },
+            p: { xs: 1, sm: 2.5, md: 3 },
             bgcolor: colors.surface,
             border: `1px solid ${colors.border}`,
             borderRadius: 2,
@@ -405,11 +405,11 @@ export default function PlayHigherLower() {
           >
             {currentMode?.isInverse ? "Who Had Less" : "Who Had More"}
           </Typography>
-          <Typography variant="h4" align="center" sx={{ mt: 0.25, mb: 2.5, fontWeight: 900 }}>
+          <Typography variant="h4" align="center" sx={{ mt: 0.25, mb: { xs: 0.75, sm: 2.5 }, fontSize: { xs: "1.25rem", sm: "2.125rem" }, fontWeight: 900 }}>
             {currentMode?.title?.split(" in")[0]}
           </Typography>
 
-          <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", mb: 2 }}>
+          <Stack direction="row" spacing={1.25} sx={{ alignItems: "center", mb: { xs: 0.75, sm: 2 } }}>
             <Typography
               sx={{
                 minWidth: 30,
@@ -442,12 +442,12 @@ export default function PlayHigherLower() {
             />
           </Stack>
 
-          <Stack direction="row" sx={{ gap: 1, mb: 2 }}>
+          <Stack direction="row" sx={{ gap: 1, mb: { xs: 0.75, sm: 2 } }}>
             <Box
               sx={{
                 flex: 1,
                 px: 1.5,
-                py: 1,
+                py: { xs: 0.4, sm: 1 },
                 bgcolor: colors.backgroundHighlight,
                 borderRadius: 1.5,
                 border: `1px solid ${colors.border}`,
@@ -456,13 +456,13 @@ export default function PlayHigherLower() {
               <Typography sx={{ color: colors.primary, fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.08em" }}>
                 SCORE
               </Typography>
-              <Typography sx={{ fontSize: "1.3rem", fontWeight: 900 }}>{score}</Typography>
+              <Typography sx={{ fontSize: { xs: "1rem", sm: "1.3rem" }, fontWeight: 900 }}>{score}</Typography>
             </Box>
             <Box
               sx={{
                 flex: 1,
                 px: 1.5,
-                py: 1,
+                py: { xs: 0.4, sm: 1 },
                 bgcolor: colors.backgroundHighlight,
                 borderRadius: 1.5,
                 border: `1px solid ${colors.border}`,
@@ -471,11 +471,11 @@ export default function PlayHigherLower() {
               <Typography sx={{ color: colors.gold, fontSize: "0.68rem", fontWeight: 900, letterSpacing: "0.08em" }}>
                 BEST
               </Typography>
-              <Typography sx={{ fontSize: "1.3rem", fontWeight: 900 }}>{maxScore}</Typography>
+              <Typography sx={{ fontSize: { xs: "1rem", sm: "1.3rem" }, fontWeight: 900 }}>{maxScore}</Typography>
             </Box>
           </Stack>
 
-          <Stack spacing={2} sx={{ flexGrow: 1, mt: 2 }}>
+          <Stack spacing={{ xs: 0.5, sm: 2 }} sx={{ flexGrow: 1, mt: { xs: 0.75, sm: 2 } }}>
             <Button
               disableRipple
               sx={{
@@ -506,16 +506,16 @@ export default function PlayHigherLower() {
               <Divider sx={{ flex: 1, bgcolor: "grey.400" }} />
               {correctIndex > -1 ? (
                 correctIndex > 1 ? (
-                  <Box sx={{ backgroundColor: colors.text, borderRadius: 100, width: 45, height: 45 }}>
-                    <CancelIcon sx={{ fontSize: 45, color: colors.primary }} />
+                  <Box sx={{ backgroundColor: colors.text, borderRadius: 100, width: { xs: 24, sm: 45 }, height: { xs: 24, sm: 45 } }}>
+                    <CancelIcon sx={{ fontSize: { xs: 24, sm: 45 }, color: colors.primary }} />
                   </Box>
                 ) : (
-                  <Box sx={{ backgroundColor: colors.text, borderRadius: 100, width: 45, height: 45 }}>
-                    <CheckCircleIcon sx={{ fontSize: 45, color: colors.grass }} />
+                  <Box sx={{ backgroundColor: colors.text, borderRadius: 100, width: { xs: 24, sm: 45 }, height: { xs: 24, sm: 45 } }}>
+                    <CheckCircleIcon sx={{ fontSize: { xs: 24, sm: 45 }, color: colors.grass }} />
                   </Box>
                 )
               ) : (
-                <Typography variant="button" sx={{ fontSize: 30, lineHeight: "45px" }}>
+                <Typography variant="button" sx={{ fontSize: { xs: 16, sm: 30 }, lineHeight: { xs: "24px", sm: "45px" } }}>
                   OR
                 </Typography>
               )}

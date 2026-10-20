@@ -180,7 +180,7 @@ export default function Home() {
                 fontSize: { xs: "1rem", md: "1.1rem" },
               }}
             >
-              Play daily baseball trivia and MLB games. Name players from stat clues, solve a reverse grid, compare player stats, or build a 162-0 team. The Diamond app offers more ways to play.
+              Play daily baseball trivia and MLB games. Name players from stat clues, solve a reverse grid, compare player stats, or build a 162-0 team.
             </Typography>
 
             <Stack direction={{ xs: "column", sm: "row" }} spacing={1.25} sx={{ mt: 2 }}>

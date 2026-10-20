@@ -1,4 +1,10 @@
 version: 1
+backend:
+  phases:
+    build:
+      commands:
+        # Retrieve existing client configuration without pushing backend changes.
+        - amplify pull --appId d3atqfo9c31ej3 --envName prod --yes
 frontend:
   phases:
     preBuild:

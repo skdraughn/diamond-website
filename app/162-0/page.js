@@ -113,7 +113,7 @@ export default function EightyTwoZeroPage() {
             <Stack spacing={1.3}>
               <Typography sx={{ color: colors.secondaryText }}>Fill pitcher, infielder, outfielder, catcher, and FLEX. Hitters eligible at IF, OF, C, or DH can fill FLEX; a pitcher-only season cannot. Check the open positions before committing to a name.</Typography>
               <Typography sx={{ color: colors.secondaryText }}>The pitcher contributes 25% of the roster grade. Each of the four hitter slots contributes 18.75%, and an empty slot contributes zero. A strong pitcher can be worth choosing over a familiar hitter.</Typography>
-              <Typography sx={{ color: colors.secondaryText }}>Use a reroll before placing the current player. A team reroll keeps the decade; a decade reroll keeps the team. You have one of each across all five rounds.</Typography>
+              <Typography sx={{ color: colors.secondaryText }}>Use a reroll if you’re stumped. A team reroll keeps the decade; a decade reroll keeps the team. You have one of each across all five rounds.</Typography>
             </Stack>
           ),
         },

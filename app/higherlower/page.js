@@ -87,14 +87,6 @@ export default function HigherLowerPage() {
           ),
         },
         {
-          title: "A Simple Comparison Example",
-          content: (
-            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              If one card shows 25 home runs and another shows 30, the second card has the higher total. ERA works differently: a 2.50 ERA is better than a 3.50 ERA. Read the category carefully instead of always choosing the larger number.
-            </Typography>
-          ),
-        },
-        {
           title: "Build Better Stat Intuition",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>

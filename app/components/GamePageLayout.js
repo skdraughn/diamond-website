@@ -8,7 +8,7 @@ function GameInfoSection({ title, children }) {
       <Typography variant="h2" sx={{ fontSize: { xs: "1.3rem", md: "1.5rem" }, mb: 1.1 }}>
         {title}
       </Typography>
-      <Stack spacing={1.1}>{children}</Stack>
+      <Stack spacing={1.1} sx={{ "& a": { textDecoration: "underline", textUnderlineOffset: "0.2em", "&:hover": { color: colors.text } } }}>{children}</Stack>
     </Box>
   );
 }
@@ -66,6 +66,11 @@ export default function GamePageLayout({
             ))}
           </>
         )}
+        <GameInfoSection title="Play Other Sports">
+          <Typography sx={{ color: colors.secondaryText }}>
+            Try football trivia on <a href="https://www.gridirontrivia.com/">Gridiron Trivia</a> or basketball trivia on <a href="https://www.blacktoptrivia.com/">Blacktop Trivia</a>.
+          </Typography>
+        </GameInfoSection>
         <AppBenefitPromo game={heading.replace(/^Play (Today’s |Today's )?/, "")} />
       </Container>
       {reserveRightRail && <Box aria-hidden="true" sx={{ display: { xs: "none", lg: "block" }, minWidth: 0 }} />}

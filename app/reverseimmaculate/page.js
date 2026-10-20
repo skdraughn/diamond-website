@@ -100,7 +100,7 @@ export default function ReverseImmaculatePage() {
           title: "Start With the Strongest Connection",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Begin with the row or column whose players you know best. Consider shorter stops as well as the teams most associated with each player, and check your candidate against the entire line before spending a guess. Working through these overlaps turns baseball career knowledge into a process of elimination.
+              Begin with the row or column whose players you know best. Consider shorter stops as well as the teams most associated with each player, and check your candidate against the entire line before spending a guess.
             </Typography>
           ),
         },

@@ -14,7 +14,7 @@ const games = [
   {
     "name": "Reverse Immaculate",
     "href": "/reverseimmaculate",
-    "description": "The players are already in the grid. Work out the missing MLB teams by finding the connections across each row and column."
+    "description": "Work out the missing MLB teams by finding the connections across the players in each row and column."
   },
   {
     "name": "Higher Lower",

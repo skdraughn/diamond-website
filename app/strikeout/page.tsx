@@ -86,15 +86,7 @@ export default function StrikeoutPage() {
           title: "Work Through the Prompt",
           content: (
             <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              Read the whole clue before naming a player. Check whether it asks for a career total, a single season, a specific team, or a particular stretch of MLB history. A player who meets the statistical threshold can still be wrong if the team or years do not match.
-            </Typography>
-          ),
-        },
-        {
-          title: "An Example of the Reasoning",
-          content: (
-            <Typography variant="body1" sx={{ color: colors.secondaryText }}>
-              For a hypothetical clue asking for 40-home-run seasons with one franchise, a player with 45 home runs for that team qualifies; a 35-home-run season does not. A 45-home-run season for a different team also fails. Check the total and the team together before submitting your guess.
+              Read the whole clue before naming a player. Check whether it asks for a career total, a single season, a specific team, or a particular stretch of MLB history.
             </Typography>
           ),
         },

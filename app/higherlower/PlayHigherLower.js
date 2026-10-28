@@ -17,6 +17,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import HigherLowerGameOverModal from "../components/HigherLowerGameOverModal";
 import HigherLowerPlayerCard from "../components/HigherLowerPlayerCard";
 import useHigherLowerGame from "../hooks/useHigherLowerGame";
+import useGameAnalytics from "../hooks/useGameAnalytics";
 import useTeams from "../hooks/useTeams";
 import { colors } from "../theme/colors";
 import { teamLogoMap } from "@/utils/teamLogoMap";
@@ -64,6 +65,7 @@ export default function PlayHigherLower() {
   const [secondPlayerStatRevealed, setSecondPlayerStatRevealed] = useState(false);
   const [gameOverModalVisible, setGameOverModalVisible] = useState(false);
   const [gameSession, setGameSession] = useState(0);
+  const analytics = useGameAnalytics("higher_lower", null, "singleplayer");
   const [logosReady, setLogosReady] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(DEFAULT_TIME);
   const [progress, setProgress] = useState(100);
@@ -102,6 +104,7 @@ export default function PlayHigherLower() {
 
   const markComplete = useCallback(() => {
     if (typeof window === "undefined") return;
+    analytics.complete({ score: latestScoreRef.current, completion_reason: "run_ended" });
 
     const finalScore = latestScoreRef.current;
     const oldMax = Number(localStorage.getItem(maxScoreKey) || 0);
@@ -136,6 +139,7 @@ export default function PlayHigherLower() {
   const handleRestart = useCallback(() => {
     window.clearInterval(timerRef.current);
     countdownActive.current = false;
+    analytics.reset();
     resetGame();
     setGameSession((session) => session + 1);
     setFirstPlayerStatRevealed(false);
@@ -167,6 +171,7 @@ export default function PlayHigherLower() {
   const startCountdown = useCallback(
     (remainingMs = currentTimeAvailable * 1000) => {
       window.clearInterval(timerRef.current);
+      analytics.start();
       countdownActive.current = true;
       deadlineRef.current = Date.now() + remainingMs;
       hasPressed.current = false;

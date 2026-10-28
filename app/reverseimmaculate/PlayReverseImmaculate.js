@@ -1,5 +1,7 @@
 "use client";
 
+import { logFirebaseEvent } from "@/utils/firebaseAnalytics";
+
 import { decodeMojibake } from "../utils/normalizePlayers";
 
 import React, { useCallback, useEffect, useRef, useState } from "react";
@@ -22,6 +24,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import CancelRounded from "@mui/icons-material/CancelRounded";
 import useReverseImmaculateGameByDate from "../hooks/useReverseImmaculateGameByDate";
+import useGameAnalytics from "../hooks/useGameAnalytics";
 import useTeams from "../hooks/useTeams";
 import { getLocalISODate } from "../utils/date";
 import { colors } from "../theme/colors";
@@ -448,11 +451,16 @@ function ResultsModal({
     if (navigator.share) {
       try {
         await navigator.share({ title: "Diamond Trivia", text: msg });
+        logFirebaseEvent("share_complete", { game: "reverse_immaculate", format: "text" });
       } catch {
-        await navigator.clipboard?.writeText(msg);
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(msg);
+          logFirebaseEvent("share_copy", { game: "reverse_immaculate", format: "text" });
+        }
       }
     } else {
       await navigator.clipboard.writeText(msg);
+      logFirebaseEvent("share_copy", { game: "reverse_immaculate", format: "text" });
       alert("Copied to clipboard!");
     }
   };
@@ -620,6 +628,7 @@ export default function PlayReverseImmaculate() {
     completed: false,
   });
   const recordedRef = useRef(false);
+  const analytics = useGameAnalytics("reverse_immaculate", game?.id);
 
   useEffect(() => {
     if (!game) return;
@@ -703,12 +712,13 @@ export default function PlayReverseImmaculate() {
     (nextState) => {
       if (!game) return;
       const finalState = { ...nextState, completed: true };
+      analytics.complete({ score: finalState.score, completion_reason: finalState.score === totalTeams ? "won" : "strikes" });
       setState(finalState);
       saveState(game.id, finalState);
       recordStats(finalState);
       if (!resultsDismissed) setResultsModalVisible(true);
     },
-    [game, recordStats, resultsDismissed]
+    [analytics, game, recordStats, resultsDismissed, totalTeams]
   );
 
   useEffect(() => {
@@ -725,6 +735,7 @@ export default function PlayReverseImmaculate() {
 
   const handleSelectTeam = (team, rowIndex, colIndex) => {
     if (!game || state.completed) return;
+    analytics.start();
 
     const isRow = rowIndex !== -1;
     const targetID = isRow ? game.rowTeams[rowIndex] : game.colTeams[colIndex];
@@ -751,6 +762,7 @@ export default function PlayReverseImmaculate() {
   };
 
   const resetGame = () => {
+    analytics.reset();
     if (!game) return;
     const fresh = {
       rowGuesses: Array.from({ length: game.rowTeams.length }, () => []),

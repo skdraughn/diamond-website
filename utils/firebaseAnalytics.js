@@ -1,6 +1,6 @@
 "use client";
 
-import { getAnalytics, isSupported, logEvent } from "firebase/analytics";
+import { initializeAnalytics, isSupported, logEvent } from "firebase/analytics";
 import {
   getFirebaseApp,
   hasFirebaseAnalyticsConfig,
@@ -16,7 +16,7 @@ async function getFirebaseAnalytics() {
     if (!hasFirebaseAnalyticsConfig()) return null;
     const app = getFirebaseApp();
     if (!app) return null;
-    return getAnalytics(app);
+    return initializeAnalytics(app, { config: { send_page_view: false } });
   })();
 
   return analyticsPromise;
@@ -25,7 +25,11 @@ async function getFirebaseAnalytics() {
 export async function logFirebaseEvent(name, params = {}) {
   try {
     const analytics = await getFirebaseAnalytics();
-    if (analytics) logEvent(analytics, name, params);
+    if (analytics) logEvent(analytics, name, {
+      app: "diamond",
+      ...params,
+      ...(process.env.NEXT_PUBLIC_ANALYTICS_DEBUG === "true" ? { debug_mode: true, validation_run: process.env.NEXT_PUBLIC_ANALYTICS_VALIDATION_RUN || "local" } : {}),
+    });
   } catch {
     // Analytics must never interrupt gameplay or navigation.
   }

@@ -1,5 +1,7 @@
 "use client";
 
+import { logFirebaseEvent } from "@/utils/firebaseAnalytics";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { generateClient } from "aws-amplify/api";
@@ -22,6 +24,7 @@ import {
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import { getPreferredStoreLink } from "../utils/appStore";
 import { trackAppStoreClick } from "@/utils/firebaseAnalytics";
+import useGameAnalytics from "../hooks/useGameAnalytics";
 import useTriviaPlayers from "@/utils/useTriviaPlayers";
 import { STATIC_TEAMS } from "@/utils/teams";
 import { teamLogoMap } from "@/utils/teamLogoMap";
@@ -563,6 +566,7 @@ export default function PlayStrikeout() {
   const [resultsDismissed, setResultsDismissed] = useState(false);
   const [resultStats, setResultStats] = useState<any>(null);
 
+  const analytics = useGameAnalytics("strikeout", game?.id);
   const numStrikes = game?.numStrikes || 3;
   const isGameOver = game ? strikes >= numStrikes : false;
   const isCompleted = game?.cells ? Object.keys(matched).length === game.cells.length : false;
@@ -630,6 +634,7 @@ export default function PlayStrikeout() {
   useEffect(() => {
     if (!isFinished || !game?.cells?.length) return;
 
+    analytics.complete({ score, completion_reason: isCompleted ? "won" : "strikes" });
     if (!recordedStatsRef.current) {
       const won = score === game.cells.length;
       const raw = localStorage.getItem("diamond_strikeout_stats");
@@ -677,6 +682,7 @@ export default function PlayStrikeout() {
   const handleGuess = (player: any) => {
     if (isFinished || !game || guesses.includes(player.id)) return;
 
+    analytics.start();
     const targetCell = game.cells.find((cell: any) => cell.answerPlayerID === player.id);
     setGuesses((prev) => [...prev, player.id]);
 
@@ -704,16 +710,24 @@ export default function PlayStrikeout() {
     if (navigator.share) {
       try {
         await navigator.share({ title: "Diamond Trivia", text: shareText });
+        logFirebaseEvent("share_complete", { game: "strikeout", format: "text" });
       } catch {
-        await navigator.clipboard?.writeText(shareText);
+        if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareText);
+          logFirebaseEvent("share_copy", { game: "strikeout", format: "text" });
+        }
       }
     } else {
-      await navigator.clipboard?.writeText(shareText);
+      if (navigator.clipboard) {
+          await navigator.clipboard.writeText(shareText);
+          logFirebaseEvent("share_copy", { game: "strikeout", format: "text" });
+        }
       alert("Results copied to clipboard.");
     }
   };
 
   const handleTryAgain = () => {
+    analytics.reset();
     setStrikes(0);
     setAnswersShown(false);
     setModalVisible(false);

@@ -89,7 +89,7 @@ function StoreCTA({ placement, large = false }) {
   useEffect(() => {
     setPreferred(getPreferredStoreLink(navigator.userAgent));
   }, []);
-  const track = (platform) => logFirebaseEvent("app_handoff_click", {
+  const track = (platform) => logFirebaseEvent("app_store_click", {
     app: "diamond", game: "one_sixty_two_zero", placement, platform,
   });
   return (
@@ -1218,24 +1218,35 @@ function ShareDialog({ open, onClose, picks, result, accuracy }) {
     if (preview) URL.revokeObjectURL(preview);
   }, [preview]);
   const shareText = async () => {
-    logFirebaseEvent("share_text", { app: "diamond", game: "one_sixty_two_zero" });
-    if (navigator.share) await navigator.share({ title: "Diamond Trivia 162-0", text, url: "https://www.diamondtrivia.com/162-0" });
-    else {
-      await navigator.clipboard.writeText(text);
-      alert("Copied to clipboard!");
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Diamond Trivia 162-0", text, url: "https://www.diamondtrivia.app/162-0" });
+        logFirebaseEvent("share_complete", { game: "one_sixty_two_zero", format: "text" });
+      } else {
+        await navigator.clipboard.writeText(text);
+        logFirebaseEvent("share_copy", { game: "one_sixty_two_zero", format: "text" });
+        alert("Copied to clipboard!");
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") throw error;
     }
   };
   const shareImage = async () => {
     if (!blob) return;
-    logFirebaseEvent("share_image", { app: "diamond", game: "one_sixty_two_zero" });
     const file = new File([blob], "diamond-162-0.png", { type: "image/png" });
-    if (navigator.share && navigator.canShare?.({ files: [file] })) {
-      await navigator.share({ files: [file], text, title: "Diamond Trivia 162-0" });
-    } else {
-      const link = document.createElement("a");
-      link.href = preview;
-      link.download = file.name;
-      link.click();
+    try {
+      if (navigator.share && navigator.canShare?.({ files: [file] })) {
+        await navigator.share({ files: [file], text, title: "Diamond Trivia 162-0" });
+        logFirebaseEvent("share_complete", { game: "one_sixty_two_zero", format: "png" });
+      } else {
+        const link = document.createElement("a");
+        link.href = preview;
+        link.download = file.name;
+        link.click();
+        logFirebaseEvent("share_download", { game: "one_sixty_two_zero", format: "png" });
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") throw error;
     }
   };
   return (
@@ -1570,7 +1581,7 @@ function ResultPage({ attempt, catalog, stats, remaining, onFinalAttempt }) {
                 href={getPreferredStoreLink(
                   typeof navigator === "undefined" ? "" : navigator.userAgent,
                 ).href}
-                onClick={() => logFirebaseEvent("app_handoff_click", {
+                onClick={() => logFirebaseEvent("app_store_click", {
                   app: "diamond",
                   game: "one_sixty_two_zero",
                   placement: "attempt_one_result",
@@ -1588,7 +1599,7 @@ function ResultPage({ attempt, catalog, stats, remaining, onFinalAttempt }) {
               href={getPreferredStoreLink(
                 typeof navigator === "undefined" ? "" : navigator.userAgent,
               ).href}
-              onClick={() => logFirebaseEvent("app_handoff_click", {
+              onClick={() => logFirebaseEvent("app_store_click", {
                 app: "diamond",
                 game: "one_sixty_two_zero",
                 placement: "attempt_limit",

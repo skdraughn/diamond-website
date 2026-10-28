@@ -1,3 +1,4 @@
+import GameStructuredData from "../components/GameStructuredData";
 import { Suspense } from "react";
 import Link from "next/link";
 import { Typography } from "@mui/material";
@@ -94,6 +95,7 @@ export default function StatStackPage() {
         },
       ]}
     >
+      <GameStructuredData name="Stat Stack" description={metadata.description} path="/statstack" />
       <Suspense fallback={<GamePageLoadingFallback />}>
         <StatStackGame />
       </Suspense>

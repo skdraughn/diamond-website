@@ -1,0 +1,51 @@
+{
+  "brand": "Diamond Trivia",
+  "game": "162-0",
+  "sport": "MLB",
+  "bg": "#071220",
+  "surface": "#103829",
+  "domain": "diamondtrivia.app/162-0",
+  "players": [
+    [
+      "P",
+      "Shohei Ohtani",
+      "LAD \u00b7 2025",
+      null,
+      null,
+      "#005A9C"
+    ],
+    [
+      "IF",
+      "Albert Pujols",
+      "STL \u00b7 2009",
+      null,
+      null,
+      "#C41E3A"
+    ],
+    [
+      "OF",
+      "Aaron Judge",
+      "NYY \u00b7 2022",
+      null,
+      null,
+      "#253b54"
+    ],
+    [
+      "C",
+      "Buster Posey",
+      "SF \u00b7 2012",
+      null,
+      null,
+      "#B84E0D"
+    ],
+    [
+      "FLEX",
+      "Mookie Betts",
+      "LAD \u00b7 2023",
+      null,
+      null,
+      "#005A9C"
+    ]
+  ],
+  "kind": "diamond"
+}

@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Typography } from "@mui/material";
-import { openGraphImage } from "@/utils/sharedMetadata";
 import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
@@ -14,7 +13,7 @@ export const metadata = {
     "Play a daily MLB grid game with the players already filled in. Find the six missing teams in Reverse Immaculate and test your baseball knowledge.",
   alternates: { canonical: "/reverseimmaculate" },
   openGraph: {
-    ...openGraphImage,
+    images: [{ url: "https://www.diamondtrivia.app/reverseimmaculate/opengraph-image", width: 1200, height: 630, alt: "Reverse Immaculate game preview" }],
     title: "Reverse Immaculate Grid | Daily MLB Grid Game",
     description:
       "Play a daily MLB grid game with the players already filled in. Find the six missing teams in Reverse Immaculate and test your baseball knowledge.",
@@ -22,7 +21,7 @@ export const metadata = {
     siteName: "Diamond Trivia",
     type: "website",
   },
-  twitter: {
+  twitter: { images: [{ url: "https://www.diamondtrivia.app/reverseimmaculate/twitter-image", width: 1200, height: 630, alt: "Reverse Immaculate game preview" }],
     card: "summary_large_image",
     title: "Reverse Immaculate Grid | Daily MLB Grid Game",
     description:

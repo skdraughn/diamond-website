@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Typography } from "@mui/material";
-import { openGraphImage } from "@/utils/sharedMetadata";
 import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
@@ -14,7 +13,7 @@ export const metadata = {
     "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",
   alternates: { canonical: "/higherlower" },
   openGraph: {
-    ...openGraphImage,
+    images: [{ url: "https://www.diamondtrivia.app/higherlower/opengraph-image", width: 1200, height: 630, alt: "Higher Lower game preview" }],
     title: "MLB Higher or Lower | Baseball Stats Game",
     description:
       "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",
@@ -22,7 +21,7 @@ export const metadata = {
     siteName: "Diamond Trivia",
     type: "website",
   },
-  twitter: {
+  twitter: { images: [{ url: "https://www.diamondtrivia.app/higherlower/twitter-image", width: 1200, height: 630, alt: "Higher Lower game preview" }],
     card: "summary_large_image",
     title: "MLB Higher or Lower | Baseball Stats Game",
     description: "Play MLB Higher or Lower. Compare two players’ stats, beat the timer, and keep your streak going. For ERA, choose the lower number.",

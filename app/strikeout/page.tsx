@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { Typography } from "@mui/material";
-import { openGraphImage } from "@/utils/sharedMetadata";
 import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import { colors } from "../theme/colors";
@@ -14,7 +13,7 @@ export const metadata = {
     "Play Strikeout, a daily baseball trivia game. Name the MLB players who match the stat clue and fill the board before you run out of strikes.",
   alternates: { canonical: "/strikeout" },
   openGraph: {
-    ...openGraphImage,
+    images: [{ url: "https://www.diamondtrivia.app/strikeout/opengraph-image", width: 1200, height: 630, alt: "Strikeout game preview" }],
     title: "Strikeout | Daily MLB Stats Trivia",
     description:
       "Play Strikeout, a daily baseball trivia game. Name the MLB players who match the stat clue and fill the board before you run out of strikes.",
@@ -22,7 +21,7 @@ export const metadata = {
     siteName: "Diamond Trivia",
     type: "website",
   },
-  twitter: {
+  twitter: { images: [{ url: "https://www.diamondtrivia.app/strikeout/twitter-image", width: 1200, height: 630, alt: "Strikeout game preview" }],
     card: "summary_large_image",
     title: "Strikeout | Daily MLB Stats Trivia",
     description:

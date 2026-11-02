@@ -5,7 +5,6 @@ import { Typography } from "@mui/material";
 import GamePageLayout from "../components/GamePageLayout";
 import GamePageLoadingFallback from "../components/GamePageLoadingFallback";
 import StatStackGame from "./StatStackGame";
-import { openGraphImage } from "@/utils/sharedMetadata";
 import { colors } from "../theme/colors";
 
 export const metadata = {
@@ -14,14 +13,14 @@ export const metadata = {
     "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",
   alternates: { canonical: "/statstack" },
   openGraph: {
-    ...openGraphImage,
+    images: [{ url: "https://www.diamondtrivia.app/statstack/opengraph-image", width: 1200, height: 630, alt: "Stat Stack game preview" }],
     title: "Stat Stack | Daily MLB Player Stats Game",
     description: "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",
     url: "https://www.diamondtrivia.app/statstack",
     siteName: "Diamond Trivia",
     type: "website",
   },
-  twitter: {
+  twitter: { images: [{ url: "https://www.diamondtrivia.app/statstack/twitter-image", width: 1200, height: 630, alt: "Stat Stack game preview" }],
     card: "summary_large_image",
     title: "Stat Stack | Daily MLB Player Stats Game",
     description: "Play MLB Stat Stack. Choose five player-seasons that fit the row clues and score as highly as possible in the featured baseball stat.",

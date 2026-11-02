@@ -44,7 +44,6 @@ export async function createGameImage(){
    text(`Build an undefeated ${c.sport} team.`,{fontSize:40,fontWeight:700,lineHeight:1.13,marginTop:24,maxWidth:345}),
    text('Draw a team and decade.\nChoose your players.',{fontSize:23,lineHeight:1.35,color:kind==='diamond'?'#dcebff':'#c7c0b5',whiteSpace:'pre-wrap',marginTop:23,maxWidth:330})),
   text(c.domain,{position:'absolute',left:48,bottom:38,fontSize:18,color:'#9caab5'}),
-  box({position:'absolute',left:550,top:28,width:600,height:564,backgroundColor:kind==='gridiron'?'#092419':c.surface,border:'2px solid #2BB7FF',borderRadius:18,overflow:'hidden'},surface(kind,background),...c.players.map((p,i)=>card(p,logos[i],kind))),
-  text('EXAMPLE LINEUP',{position:'absolute',right:43,bottom:11,fontSize:12,letterSpacing:1.2,color:'#9caab5'}));
+  box({position:'absolute',left:550,top:28,width:600,height:564,backgroundColor:kind==='gridiron'?'#092419':c.surface,border:'2px solid #2BB7FF',borderRadius:18,overflow:'hidden'},surface(kind,background),...c.players.map((p,i)=>card(p,logos[i],kind))));
  return new ImageResponse(element,{width:1200,height:630,fonts:[{name:'Barlow',data:regular,weight:400,style:'normal'},{name:'Barlow',data:bold,weight:700,style:'normal'},{name:'Barlow Condensed',data:condensed,weight:700,style:'normal'}]});
 }

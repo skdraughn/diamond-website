@@ -24,7 +24,6 @@ import TouchAppRoundedIcon from "@mui/icons-material/TouchAppRounded";
 import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
 import ExpandMoreRoundedIcon from "@mui/icons-material/ExpandMoreRounded";
 import { generateClient } from "aws-amplify/api";
-import useTriviaPlayers from "@/utils/useTriviaPlayers";
 import { colors } from "@/app/theme/colors";
 import { logFirebaseEvent } from "@/utils/firebaseAnalytics";
 import { shareResult } from "@/app/utils/shareResult";
@@ -242,7 +241,7 @@ function LoadingBoard() {
 }
 
 export default function StatStackGame() {
-  const { basicPlayers, loading: playersLoading } = useTriviaPlayers();
+  const [basicPlayers, setBasicPlayers] = useState([]);
   const players = useMemo(
     () =>
       basicPlayers.map((player, statStackIndex) => ({
@@ -279,7 +278,6 @@ export default function StatStackGame() {
   );
 
   useEffect(() => {
-    if (playersLoading || !basicPlayers.length) return undefined;
     let active = true;
     async function load() {
       try {
@@ -300,9 +298,8 @@ export default function StatStackGame() {
         }
         const nextGame = response.data?.statStackGamesByDate?.items?.[0];
         if (!nextGame) throw new Error("No Stat Stack game is available today.");
-        const nextPayload = await fetchStatStackPayload(
+        const { payload: nextPayload, players: nextPlayers } = await fetchStatStackPayload(
           nextGame,
-          basicPlayers,
           (event, details) => logFirebaseEvent(`stat_stack_${event}`, {
             app: "diamond",
             game: "stat_stack",
@@ -310,6 +307,7 @@ export default function StatStackGame() {
           })
         );
         if (!active) return;
+        setBasicPlayers(nextPlayers);
         setGame(nextGame);
         setPayload(nextPayload);
         const saved = JSON.parse(localStorage.getItem(storageKey(nextGame.id)) || "null");
@@ -330,7 +328,7 @@ export default function StatStackGame() {
     return () => {
       active = false;
     };
-  }, [basicPlayers, playersLoading]);
+  }, []);
 
   useEffect(() => {
     if (!game) return;
@@ -539,7 +537,7 @@ export default function StatStackGame() {
     setResultsOpen(false);
   };
 
-  if (loading || playersLoading) {
+  if (loading) {
     return <LoadingBoard />;
   }
   if (error) return <Alert severity="error">{error}</Alert>;

@@ -323,7 +323,7 @@ export const verifyStatStackPayloadChecksum = async (raw, expectedChecksum) => {
   return true;
 };
 
-export const parseStatStackPayload = async (raw, game, sharedPlayers = []) => {
+const decodeStatStackPayload = async (raw, game) => {
   await verifyStatStackPayloadChecksum(raw, game?.payloadChecksum);
   const payload = JSON.parse(raw);
   if (
@@ -332,39 +332,69 @@ export const parseStatStackPayload = async (raw, game, sharedPlayers = []) => {
   ) {
     throw new Error("Stat Stack payload schema metadata does not match.");
   }
+  return payload;
+};
+
+const validateDecodedStatStackPayload = async (payload, game, sharedPlayers) => {
   if (Number(payload.schemaVersion) === 5) {
     await verifyCompactPlayerDataset(payload, sharedPlayers);
   }
   return validateStatStackPayload(payload, game, sharedPlayers);
 };
 
-const loadPayloadURL = async (url, game, sharedPlayers) => {
+export const parseStatStackPayload = async (raw, game, sharedPlayers = []) =>
+  validateDecodedStatStackPayload(await decodeStatStackPayload(raw, game), game, sharedPlayers);
+
+const catalogCache = new Map();
+const loadPinnedCatalog = (fileName) => {
+  if (typeof fileName !== "string" || !/^[A-Za-z0-9._-]+\.json$/.test(fileName)) {
+    throw new Error("Stat Stack player catalog filename is invalid.");
+  }
+  if (!catalogCache.has(fileName)) {
+    const pending = (async () => {
+      const response = await fetch(`https://diamondtrivia-public-bucket.s3.us-east-1.amazonaws.com/data/${fileName}`);
+      if (!response.ok) throw new Error(`Stat Stack player catalog request failed (${response.status}).`);
+      const players = await response.json();
+      if (!Array.isArray(players) || !players.length) throw new Error("Stat Stack player catalog is empty.");
+      return players;
+    })().catch((error) => {
+      catalogCache.delete(fileName);
+      throw error;
+    });
+    catalogCache.set(fileName, pending);
+  }
+  return catalogCache.get(fileName);
+};
+
+const loadPayloadURL = async (url, game) => {
   if (!url) throw new Error("Stat Stack payload URL is missing.");
   const response = await fetch(url);
   if (!response.ok) throw new Error(`Stat Stack payload request failed (${response.status}).`);
-  return parseStatStackPayload(await response.text(), game, sharedPlayers);
+  const payload = await decodeStatStackPayload(await response.text(), game);
+  const players = await loadPinnedCatalog(payload.playerDataset?.basicFileName);
+  return { payload: await validateDecodedStatStackPayload(payload, game, players), players };
 };
 
-export const fetchStatStackPayload = async (game, sharedPlayers = [], report = () => {}) => {
+export const fetchStatStackPayload = async (game, report = () => {}) => {
   let compactError = null;
   if (game?.compactPayloadURL) {
     try {
-      const payload = await loadPayloadURL(game.compactPayloadURL, {
+      const board = await loadPayloadURL(game.compactPayloadURL, {
         ...game,
         payloadChecksum: game.compactPayloadChecksum,
         payloadSchemaVersion: game.compactPayloadSchemaVersion,
-      }, sharedPlayers);
-      report("payload_loaded", { format: "compact", schema_version: Number(payload.schemaVersion) });
-      return payload;
+      });
+      report("payload_loaded", { format: "compact", schema_version: Number(board.payload.schemaVersion) });
+      return board;
     } catch (error) {
       compactError = error;
       report("compact_fallback", { reason: error?.message || "validation" });
     }
   }
   if (game?.payloadURL) {
-    const payload = await loadPayloadURL(game.payloadURL, game, sharedPlayers);
-    report("payload_loaded", { format: "legacy", schema_version: Number(payload.schemaVersion) });
-    return payload;
+    const board = await loadPayloadURL(game.payloadURL, game);
+    report("payload_loaded", { format: "legacy", schema_version: Number(board.payload.schemaVersion) });
+    return board;
   }
   throw compactError || new Error("The Stat Stack board could not be loaded.");
 };
